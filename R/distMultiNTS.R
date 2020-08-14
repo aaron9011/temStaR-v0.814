@@ -1,0 +1,166 @@
+library(functional)
+library(nloptr)
+library(pracma)
+library(spatstat)
+library(Matrix)
+library(foreach)
+library(doParallel)
+
+#' @export
+#' r = \mu + \sigma X
+#' X = \beta-1+\sqrt(\tau) \gamma^T \epsilon
+#' \mu = [\mu_1, \mu_2, \cdots, \mu_N]^T
+#' \sigma = [\sigma_1,\sigma_2, \cdots, \sigma_N]^T
+#' \beta = [\beta_1, \beta_2, \cdots, \beta_N]^T
+#' \gamma = [gamma_1, gamma_2, \cdots, \gamma_N]^T
+#' \gamma_n = \sqrt{1-\beta_n^2(2-\alpha)/(2\theta)}
+#' \epsilon \sim N(0,\Rho)
+#' \Rho Correlation metrix of N-dim standard normal distribution
+rmnts <- function( strPMNTS, numofsample, rW = NaN, rTau = NaN ){
+  if( is.nan(rW) ){
+    rW <- randn(numofsample, strPMNTS$ndim)
+  }
+  
+  if( is.nan(rTau) ){
+    rTau <- rsubTS(numofsample, c(strPMNTS$alpha, strPMNTS$theta) )
+  }
+  #print(rW)
+  N <- strPMNTS$ndim
+  beta <- matrix(data = strPMNTS$beta, nrow = 1, ncol = N)
+  gamma <- sqrt(1-beta^2*(2-strPMNTS$alpha)/(2*strPMNTS$theta))
+  gamma <- matrix(data = gamma, nrow = 1, ncol = N)
+  reps <- t(t(chol(strPMNTS$Rho))%*%t(rW))
+  rstdmnts <- (rTau-1)%*%beta+reps%*%diag(as.numeric(gamma), N, N)
+  #print(rstdmnts%*%diag(as.numeric(strPMNTS$sigma), N, N))
+  res_rmnts <- rstdmnts%*%diag(as.numeric(strPMNTS$sigma), N, N) + t(matrix(data=as.numeric(strPMNTS$mu), nrow = N, ncol = numofsample))
+  
+  #print(res_rmnts)
+  return( res_rmnts )
+}
+
+#' @export
+#' returndata : column - assets, row - returns
+#' n : number of asset
+fitmnts <- function( returndata, n, alphaNtheta = NaN, stdflag = FALSE ){
+  strPMNTS <- list(
+    ndim = n,
+    mu = matrix(data = 0, nrow = n, ncol = 1), 
+    sigma = matrix(data = 1, nrow = n, ncol = 1), 
+    alpha = 1, 
+    theta = 1, 
+    beta = matrix(data = 0, nrow = n, ncol = 1), 
+    Rho = matrix( nrow = n, ncol = n)
+  )
+  
+  if( stdflag ){
+    stdRetData <- returndata
+  }
+  else{ 
+    strPMNTS$mu <- matrix(data = colMeans(returndata), nrow = n, ncol = 1)
+    strPMNTS$sigma <- matrix(data = sqrt(diag(cov(returndata))), nrow = n, ncol = 1)
+    muMtx <- t(matrix(data = strPMNTS$mu, nrow = n, ncol = length(returndata[,1])))
+    sigmaMtx <- t(matrix(data = strPMNTS$sigma, nrow = n, ncol = length(returndata[,1])))
+    stdRetData <- (returndata-muMtx)/sigmaMtx
+  }
+  
+  athb <- matrix(nrow = n, ncol = 3)
+  if (is.nan(alphaNtheta)){
+    for( k in 1:n ){
+      stdntsparam <- fitstdnts(stdRetData[,k])
+      athb[k,1] <- stdntsparam[1]
+      athb[k,2] <- stdntsparam[2]
+      athb[k,3] <- stdntsparam[3]
+    }
+    alphaNtheta = c(mean(athb[,1]), mean(athb[,2]))
+  }
+  strPMNTS$alpha <- alphaNtheta[1]
+  strPMNTS$theta <- alphaNtheta[2]
+
+  betaVec <- matrix(nrow = n, ncol = 1)
+  gammaVec <- matrix(nrow = n, ncol = 1)
+  for( k in 1:n ){
+    betaVec[k,1] <- fitstdntsFixAlphaThata(stdRetData[,k], alpha = strPMNTS$alpha, theta = strPMNTS$theta)
+    gammaVec[k,1] <- sqrt(1-betaVec[k,1]^2*(2-strPMNTS$alpha)/(2*strPMNTS$theta))
+  }
+  strPMNTS$beta <- betaVec
+  strPMNTS$Rho <- (cov(stdRetData)-(2-strPMNTS$alpha)/(2*strPMNTS$theta)*(betaVec%*%t(betaVec)))
+  #print(strPMNTS$Rho)
+  igam <- diag(as.numeric(1/gammaVec))
+  strPMNTS$Rho <- igam%*%strPMNTS$Rho%*%igam
+  #print(strPMNTS$Rho)
+  rho <- nearPD(strPMNTS$Rho, corr=TRUE)
+  strPMNTS$Rho <- rho$mat
+  return(strPMNTS)
+}
+
+
+
+#' @export
+fitstdntsFixAlphaThata <- function( rawdat, alpha, theta, initialparam = NaN, maxeval = 100, ksdensityflag = 1){
+  if (is.nan(sum(initialparam))){
+    init <- 0
+  } else {
+    init = initialparam
+  }
+
+  if(ksdensityflag == 0){
+    Femp = ecdf(rawdat)
+    x = seq(from=min(rawdat), to = max(rawdat), by = 1000)
+    y = Femp(x)
+  } else{
+    ks <- density(rawdat)
+    cdfks <- CDF(ks)
+    x <- ks$x
+    y <- cdfks(x)
+  }
+  
+  ntsp <- nloptr::bobyqa(init, 
+                         functional::Curry(
+                           llhfntsFixAlphaTheta, 
+                           alpha = alpha, 
+                           theta = theta, 
+                           x = x, 
+                           cemp = y, 
+                           dispF = 0),
+                         lower = -1,
+                         upper = 1,
+                         control = nl.opts(list(maxeval = maxeval)))
+  
+  beta  <-  ntsp$par*sz(alpha, theta)
+  return( beta )
+}
+
+llhfntsFixAlphaTheta <- function(betaparam, alpha, theta, x, cemp, dispF = 0){
+  betaparam <- betaparam*sz(alpha, theta)
+  Fnts <- pnts(x, c(alpha, theta, betaparam) )
+  MSE <- mean((cemp-Fnts)^2)
+  #SSE = sqrt(sum((cemp-Fcts)^2))/length(x)
+  
+  if (dispF == 1){
+    cat(ntsparam, sep = ',')
+    cat(";")
+    cat(MSE)
+    cat("\n")
+  }
+  return( MSE )
+}
+
+
+#' @export
+#' 
+setPortfolioParam <- function(strPMNTS, w){
+  if(strPMNTS$ndim != length(w)){
+    print("The dimension of the weight vector must be the same as strPMNTS$ndim")
+    return(NULL)
+  }
+  w <- matrix(data = w, nrow = strPMNTS$ndim, ncol = 1)
+  m <- sum(w*strPMNTS$mu)
+  b <- sum(w*strPMNTS$sigma*strPMNTS$beta)
+  gammaMtx <- diag(as.numeric(sqrt(1-strPMNTS$beta^2*(2-strPMNTS$alpha)/(2*strPMNTS$theta)))) 
+  sigMtx <- diag(as.numeric(strPMNTS$sigma)) 
+  g <- as.numeric(sqrt(t(w)%*%sigMtx%*%gammaMtx%*%strPMNTS$Rho%*%gammaMtx%*%sigMtx%*%w))
+  a <- as.numeric(strPMNTS$alpha)
+  th <- as.numeric(strPMNTS$theta)
+  param <- change_ntsparam2stdntsparam(c(a, th, b, g, m))
+  return(param)
+}
