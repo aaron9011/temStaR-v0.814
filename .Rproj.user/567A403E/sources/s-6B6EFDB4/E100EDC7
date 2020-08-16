@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1597584291112.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "88872190",
+    "id" : "E100EDC7",
+    "lastKnownWriteTime" : 1597417671,
+    "last_content_update" : 1597417671,
+    "path" : "~/GitHub/temStaR-v0.814/R/distSubTS.R",
+    "project_path" : "R/distSubTS.R",
+    "properties" : {
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
