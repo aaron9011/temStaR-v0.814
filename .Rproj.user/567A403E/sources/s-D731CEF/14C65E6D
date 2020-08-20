@@ -5,13 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "1511596913",
+    "hash" : "0",
     "id" : "14C65E6D",
-    "lastKnownWriteTime" : 1597417671,
-    "last_content_update" : 1597417671,
+    "lastKnownWriteTime" : 1597894084,
+    "last_content_update" : 1597894084163,
     "path" : "~/GitHub/temStaR-v0.814/DESCRIPTION",
     "project_path" : "DESCRIPTION",
     "properties" : {
+        "cursorPosition" : "15,15",
+        "scrollLine" : "0"
     },
     "read_only" : false,
     "read_only_alternatives" : [
