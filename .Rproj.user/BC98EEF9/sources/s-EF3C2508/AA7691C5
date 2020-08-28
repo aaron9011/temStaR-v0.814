@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1598632038236.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2479503596",
+    "id" : "AA7691C5",
+    "lastKnownWriteTime" : 1598631441,
+    "last_content_update" : 1598631441,
+    "path" : "~/GitHub/temStaR-v0.814/R/distMultiNTS.R",
+    "project_path" : "R/distMultiNTS.R",
+    "properties" : {
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

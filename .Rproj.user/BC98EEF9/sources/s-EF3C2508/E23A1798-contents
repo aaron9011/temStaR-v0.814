@@ -1,0 +1,58 @@
+#library(rugarch)
+library(fGarch)
+source("readHistoryStockDataFromYahoo.R")
+source("GaussianCVaR_ret.R")
+source("emp_CVaR_ret.R")
+
+pr <- readHistoryStockDataFromYahoo("^GSPC",
+                                    as.Date("2010-1-1"),
+                                    as.Date("2020-08-07"))
+indexReturn <- diff(log(pr$Adj.Close))
+
+plot(indexReturn, type = 'l')
+gmodel<-garchFit(~1+garch(1,1),data=indexReturn,trace=F)
+v1<-volatility(gmodel)
+resi<-residuals(gmodel,standardize=T)
+lastvol <- v1[length(v1)]
+lasteps <- resi[length(resi)]
+c<-coef(gmodel)
+
+nStep = 10
+nSinario = 10000
+
+samplepath = matrix(nrow = nSinario, ncol = nStep)
+cumret = matrix(data = 0,nrow = nSinario, ncol = nStep+1)
+cumret[,1] = indexReturn[length(indexReturn)]
+for( i in 1:nSinario ){
+  m <- c[1]
+  s <- sqrt(c[2]+c[3]*lasteps^2*lastvol^2+c[4]*lastvol^2)
+
+  epsilon = rnorm(nStep)
+  samplepath[i,1] = m + s*epsilon[1]
+  cumret[i,2] = samplepath[i,1]
+  for( j in 2:nStep ){
+    s <- sqrt(c[2]+c[3]*epsilon[j-1]^2*s^2+c[4]*s^2)
+    samplepath[i,j] = m + s*epsilon[j]
+    cumret[i,j+1] = cumret[i,j]+samplepath[i,j]
+  }
+}
+
+matplot(0:nStep, t(cumret[1:50,]), type = 'l')
+
+tenDayRet = cumret[,11]
+hist(tenDayRet, nclass = 50)
+eps_conf <- c(0.90, 0.95, 0.99)
+alpha <- 1-eps_conf
+ValueAtRisk <- -quantile(tenDayRet, alpha);
+CVaR <- emp_CVaR_ret(alpha, tenDayRet)
+
+for (j in 1:3){
+  cat(eps_conf[j]*100,"% VaR = ", ValueAtRisk[j])
+  cat( "\n")
+}
+cat( "\n")
+for (j in 1:3){
+  cat(eps_conf[j]*100,"% CVaR = ", CVaR[j])
+  cat( "\n")
+}
+

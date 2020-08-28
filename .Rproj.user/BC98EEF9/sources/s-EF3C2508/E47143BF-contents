@@ -1,0 +1,9 @@
+alpha <- 1.2
+theta <- 1
+beta <- -0.2
+ntsparam <- c(alpha, theta, beta)
+npath <- 5
+ntimestep <- 250
+dt <- 1/250
+simulation <- gensamplepathnts(npath, ntimestep, ntsparam, dt)
+matplot(colnames(simulation), t(simulation), type = 'l')

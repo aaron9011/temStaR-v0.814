@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1598648482977.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "E23A1798",
+    "lastKnownWriteTime" : 1597346195,
+    "last_content_update" : 1597346195,
+    "path" : "C:/Users/aaronkim/Google Drive/LectureNotes/FIN549.Risk.Management/termproject/R_examples/GARCH_VaR_CVaR_MCS.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "42,28",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

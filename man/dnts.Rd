@@ -56,3 +56,7 @@ x <- seq(from = -0.02, to = 0.02, length.out = 101)
 d <- dnts(x, ntsparam)
 plot(x,d,type = 'l')
 }
+\references{
+Kim, Y. S. (2020) Portfolio Optimization on the Dispersion Risk and the Asymmetric Tail Risk
+\url{https://arxiv.org/pdf/2007.13972.pdf}
+}

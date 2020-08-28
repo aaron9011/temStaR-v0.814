@@ -51,3 +51,7 @@ ntsparam <- c(alpha, theta, beta, gamma, mu, dt)
 r <- rnts(100, ntsparam) #generate 100 NTS random numbers
 plot(r)
 }
+\references{
+Kim, Y. S. (2020) Portfolio Optimization on the Dispersion Risk and the Asymmetric Tail Risk
+\url{https://arxiv.org/pdf/2007.13972.pdf}
+}

@@ -51,3 +51,7 @@ plot(x,p,type = 'l', col = "red", ylim = c(0, max(a$y, p)))
 lines(a,type = 'l', col = "blue")
 
 }
+\references{
+Kim, Y. S. (2020) Portfolio Optimization on the Dispersion Risk and the Asymmetric Tail Risk
+\url{https://arxiv.org/pdf/2007.13972.pdf}
+}
