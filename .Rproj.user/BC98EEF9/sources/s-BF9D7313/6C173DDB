@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1598799071950.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3129215038",
+    "id" : "6C173DDB",
+    "lastKnownWriteTime" : 1598814768,
+    "last_content_update" : 1598814768804,
+    "path" : "~/GitHub/temStaR-v0.814/R/distNTS.R",
+    "project_path" : "R/distNTS.R",
+    "properties" : {
+        "cursorPosition" : "335,2",
+        "scrollLine" : "326"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

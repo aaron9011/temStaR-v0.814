@@ -18,7 +18,7 @@ Characteristic function of the standatd NTS distribution
 \description{
 \code{chf_stdNTS} calculates Ch.F of the standard NTS distribution with parameters \eqn{(\alpha, \theta, \beta)}.
 If a time parameter value is given, it calculates Ch.F of the standard NTS profess
-\eqn{\phi(u)=E[exp(i u (X(t+s)-X(s))]=exp(t log(E[exp(i u X(1))]))}, where X is the standard NTS process generated
+\eqn{\phi(u)=E[\exp(i u (X(t+s)-X(s))]=\exp(t \log(E[\exp(i u X(1))]))}, where X is the standard NTS process generated
 by the standard NTS distribution with parameters \eqn{(\alpha, \theta, \beta)}.
 }
 \examples{

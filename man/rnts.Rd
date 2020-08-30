@@ -14,7 +14,7 @@ For NTS process case it is a vector of parameters \eqn{(\alpha, \theta, \beta, \
 A vector of standard NTS parameters \eqn{(\alpha, \theta, \beta)}.}
 }
 \value{
-NTS randomnumbers
+NTS random numbers
 }
 \description{
 \code{rnts} generates random numbers following NTS distribution with parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu)}.
