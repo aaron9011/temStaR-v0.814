@@ -459,7 +459,7 @@ getPortNTSParam <- function(strPMNTS, w, stdform = TRUE){
 }
 
 #' @export
-#' @title portfolioVaR
+#' @title portfolioVaRmnts
 #' @description
 #' Calculate portfolio value at risk on the NTS market model
 #'
@@ -485,7 +485,7 @@ getPortNTSParam <- function(strPMNTS, w, stdform = TRUE){
 #' @param eta significanlt level
 #' @return portfolio value at risk on the NTS market model
 #'
-portfolioVaR <- function(strPMNTS, w, eta){
+portfolioVaRmnts <- function(strPMNTS, w, eta){
   if(strPMNTS$ndim != length(w)){
     print("The dimension of the weight vector must be the same as strPMNTS$ndim")
     return(NULL)
@@ -496,7 +496,7 @@ portfolioVaR <- function(strPMNTS, w, eta){
 }
 
 #' @export
-#' @title portfolioCVaR
+#' @title portfolioCVaRmnts
 #' @description
 #' Calculate portfolio conditional value at risk (expected shortfall) on the NTS market model
 #'
@@ -522,7 +522,7 @@ portfolioVaR <- function(strPMNTS, w, eta){
 #' @param eta significanlt level
 #' @return portfolio value at risk on the NTS market model
 #'
-portfolioCVaR <- function(strPMNTS, w, eta){
+portfolioCVaRmnts <- function(strPMNTS, w, eta){
   if(strPMNTS$ndim != length(w)){
     print("The dimension of the weight vector must be the same as strPMNTS$ndim")
     return(NULL)
