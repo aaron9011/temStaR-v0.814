@@ -1,0 +1,102 @@
+library("quadprog")
+library(quantmod)
+library(functional)
+library(nloptr)
+library(pracma)
+library(spatstat)
+library(Matrix)
+library("scatterplot3d")
+library(foreach)
+library(doParallel)
+library(plotly)
+library(xtable) 
+library("KSgeneral")
+library(xtable)
+
+#source("../ntsengine_202006/temstarDist.R")
+#source("../ntsengine_202006/distSubTS.R")
+#source("../ntsengine_202006/distNTS.R")
+#source("../ntsengine_202006/distMultiNTS.R")
+source("readHistoryStockDataFromYahoo.R")
+
+
+readLogReturn_interval <- function(yTickers, begindate, enddate, intervalDateNumber = 1) {
+  p = readHistoryStockDataFromYahoo(yTickers, begindate, enddate)
+  sub_price = p$Adj.Close[seq(1,length(p$Adj.Close), by = intervalDateNumber)]
+  re <- diff(log(sub_price))
+  return(re)
+}
+
+readLogReturn_parallel <- function(yTickers, begindate, enddate, intervalDateNumber = 1, nregDoPar = 4) {
+  n <- length(yTickers)
+  cl <- makePSOCKcluster(nregDoPar)
+  registerDoParallel(cl) 
+  res <- foreach( i=1:n ) %dopar% {
+    library(quantmod)
+    source("readHistoryStockDataFromYahoo.R")
+    p = readHistoryStockDataFromYahoo(yTickers[i], begindate, enddate)
+    sub_price = p$Adj.Close[seq(1,length(p$Adj.Close), by = intervalDateNumber)]
+    re <- diff(log(sub_price))
+  }
+  screensize <- length(res[[1]])
+  returns <- matrix(0, screensize, n)
+  for( k in 1:n ) {
+    #print(k)
+    returns[,k]=res[[k]]
+  }
+  stopCluster(cl)
+  return(returns)
+}
+
+nregDoPar <- 4
+#yTickers <- c("GOOG","MMM","MSFT","IBM" )
+
+yTickers <- c(
+  'V','CSCO','MMM','AXP','AAPL','BA','CAT', 
+  'CVX','KO','DD', 'XOM', 
+  'GS','HD','IBM','INTC','JNJ', 
+  'JPM','MCD','MRK','MSFT','NKE', 
+  'PFE','PG','TRV','UNH','RTX', 
+  'VZ','WMT','WBA','DIS')
+
+numofelements <- length(yTickers)
+n <- numofelements
+
+  begindate <- as.Date("2017-1-1")
+  enddate <- as.Date("2019-12-31")
+  intervalDateNumber <- 1
+  
+  returns <- readLogReturn_parallel( yTickers, begindate, enddate, nregDoPar = nregDoPar )
+  rdj <- readLogReturn_interval("^DJI", begindate, enddate)
+  mudj <- mean(rdj)
+  sddj <- sd(rdj)
+  stdrdj <- (rdj-mudj)/sddj
+  stdntsparam_dj <- fitstdnts( rawdat=stdrdj )
+  alth <- c(stdntsparam_dj[1], stdntsparam_dj[2])
+  st <- fitmnts(returndata = returns, n = numofelements, alphaNtheta = alth )
+  covMtx <-  cov(returns)
+  
+  kspvalues <- matrix(nrow = n, ncol = 2)
+  for(j in 1:n){
+    stdRetData <- (returns[,j]-st$mu[j])/st$sigma[j]
+    ks <- density(stdRetData)
+    cdfks <- CDF(ks)
+    x <- ks$x
+    y <- cdfks(x)
+    
+    ystdNTS <- pnts(x, ntsparam = c(st$alpha, st$theta, st$beta[j]))
+    #plot(x,y,type='l',col="red")
+    #lines(x,ystdNTS, type = 'l', col = "blue")
+    
+    ksstatistic <- max(abs(y-ystdNTS))
+    #ksres <- ks.test(y,ystdNTS)
+    kspvalues[j,2] <- 1-cont_ks_cdf(ksstatistic, length(stdRetData))
+    kspvalues[j,1] <- ksstatistic
+  }
+
+  
+  pest <- cbind(st$mu*100, st$sigma*100, st$beta*100, kspvalues[,1], kspvalues[,2]*100)
+  colnames(pest) <-  c("mu", "sigma", "beta", "ks-statistic", "p-value")
+  rownames(pest) <-  c(yTickers)
+  pest <- pest[sort(rownames(pest)),]
+  xtable(pest, display = c("s","g","f","f","g","f"))

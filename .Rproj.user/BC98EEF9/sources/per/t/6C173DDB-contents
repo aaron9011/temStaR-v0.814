@@ -164,6 +164,7 @@ qnts <- function(u, ntsparam){
   ipnts(u, ntsparam)
 }
 
+#' @export
 #' @title rnts
 #' @description \code{rnts} generates random numbers following NTS distribution with parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu)}.
 #' If only three parameters are given, it generates random numbers of standard NTS distribution with parameter \eqn{(\alpha, \theta, \beta)}
@@ -174,11 +175,10 @@ qnts <- function(u, ntsparam){
 #' For NTS process case it is a vector of parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu, t)}.
 #' A vector of standard NTS parameters \eqn{(\alpha, \theta, \beta)}.
 #'
-#' @return NTS randomnumbers
+#' @return NTS random numbers
 #' @references
 #' Kim, Y. S. (2020) Portfolio Optimization on the Dispersion Risk and the Asymmetric Tail Risk
 #' \url{https://arxiv.org/pdf/2007.13972.pdf}
-#' @export
 #' @examples
 #' alpha <- 1.2
 #' theta <- 1
@@ -379,7 +379,7 @@ fitstdnts <- function( rawdat, initialparam = NaN, maxeval = 100, ksdensityflag 
 #' @title chf_NTS
 #' @description \code{chf_NTS} calculates Ch.F of the NTS distribution with parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu)}.
 #' If a time parameter value is given, it calculates Ch.F of the NTS profess
-#' \eqn{\phi(u)=E[exp(i u (X(t+s)-X(s)) )]=exp(t log(E[exp(i u X(1))]))}, where X is the NTS process generated
+#' \eqn{\phi(u)=E[\exp(i u (X(t+s)-X(s)) )]=\exp(t \log(E[\exp(i u X(1))]))}, where X is the NTS process generated
 #' by the NTS distribution with parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu)}.
 #'
 #' @param u An array of u
@@ -434,7 +434,7 @@ chf_NTS <- function(u, param){
 #' @title chf_stdNTS
 #' @description \code{chf_stdNTS} calculates Ch.F of the standard NTS distribution with parameters \eqn{(\alpha, \theta, \beta)}.
 #' If a time parameter value is given, it calculates Ch.F of the standard NTS profess
-#' \eqn{\phi(u)=E[exp(i u (X(t+s)-X(s))]=exp(t log(E[exp(i u X(1))]))}, where X is the standard NTS process generated
+#' \eqn{\phi(u)=E[\exp(i u (X(t+s)-X(s))]=\exp(t \log(E[\exp(i u X(1))]))}, where X is the standard NTS process generated
 #' by the standard NTS distribution with parameters \eqn{(\alpha, \theta, \beta)}.
 #'
 #' @param u An array of u
@@ -612,6 +612,7 @@ change_stdntsparam2ntsparam <-function(stdparam, mu, sig, dt = 1){
   gam = sig*sqrt(1-stdparam[3]^2*(2-a)/(2*th))
   mu = mu
   ntsparam = c(a,th, bet, gam, mu, dt)
+  names(ntsparam) <- c("alpha", "theta", "beta", "gamma", "mu", "dt")
   return( ntsparam )
 }
 
@@ -648,8 +649,9 @@ change_ntsparam2stdntsparam <-function(ntsparam){
     sig_std <- sqrt(gam^2*dt+bet^2*dt*z)
     mu_std <- m*dt
   }
-
-  param <- list(stdparam=c(a, th_std, bet_std), mu=mu_std, sig=sig_std)
+  stdntsparam <- c(a, th_std, bet_std)
+  names(stdntsparam) <- c("alpha", "theta", "beta")
+  param <- list(stdparam=stdntsparam, mu=mu_std, sig=sig_std)
   return( param )
 }
 

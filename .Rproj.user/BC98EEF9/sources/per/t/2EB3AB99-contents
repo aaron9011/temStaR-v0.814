@@ -1,0 +1,244 @@
+library("quadprog")
+library(quantmod)
+library(functional)
+library(nloptr)
+library(pracma)
+library(spatstat)
+library(Matrix)
+library("scatterplot3d")
+library(foreach)
+library(doParallel)
+library(xtable)
+
+source("readHistoryStockDataFromYahoo.R")
+source("emp_CVaR_ret.R")
+source("init_asymratio_functions_boundedBeta.R")
+#setwd("C:/Users/youngskim/Google Drive/mypapers/EffFrontier_MNTS/RWorkingDirectory/test1")
+
+readLogReturn_parallel <- function(yTickers, begindate, enddate, intervalDateNumber = 1, nregDoPar = 4) {
+  n <- length(yTickers)
+  cl <- makePSOCKcluster(nregDoPar)
+  registerDoParallel(cl) 
+  res <- foreach( i=1:n ) %dopar% {
+    library(quantmod)
+    source("readHistoryStockDataFromYahoo.R")
+    p = readHistoryStockDataFromYahoo(yTickers[i], begindate, enddate)
+    sub_price = p$Adj.Close[seq(1,length(p$Adj.Close), by = intervalDateNumber)]
+    re <- diff(log(sub_price))
+  }
+  screensize <- length(res[[1]])
+  returns <- matrix(0, screensize, n)
+  for( k in 1:n ) {
+    print(k)
+    returns[,k]=res[[k]]
+  }
+  stopCluster(cl)
+  return(returns)
+}
+
+readLogReturn <- function(yTickers, begindate, enddate, intervalDateNumber = 1) {
+  n <- length(yTickers)
+  p <- readHistoryStockDataFromYahoo(yTickers[1], begindate, enddate)
+  sub_price = p$Adj.Close[seq(1,length(p$Adj.Close), by = intervalDateNumber)]
+  re <- diff(log(sub_price))
+  screensize <- length(re)
+  #returns <- matrix(0, screensize, n)
+  #returns[,1] <- re
+  returns <- re
+  for( k in 2:n ) {
+    #print(yTickers[k])
+    p <- readHistoryStockDataFromYahoo(yTickers[k], begindate, enddate)
+    sub_price <- p$Adj.Close[seq(1,length(p$Adj.Close), by = intervalDateNumber)]
+    re <- diff(log(sub_price))
+    #returns[,k] <- re
+    #print(length(re))
+    returns <- cbind(returns, re)
+  }
+  colnames(returns) <- yTickers
+  return(returns)
+}
+
+
+#yTickers <- c("GOOG","MMM","MSFT","IBM" )
+
+yTickers <- c(
+  'V','CSCO','MMM','AXP','AAPL','BA','CAT', 
+  'CVX','KO','DD', 'XOM', 
+  'GS','HD','IBM','INTC','JNJ', 
+  'JPM','MCD','MRK','MSFT','NKE', 
+  'PFE','PG','TRV','UNH','RTX', 
+  'VZ','WMT','WBA','DIS')
+
+
+numofelements <- length(yTickers)
+n <- numofelements
+
+#begindate <- as.Date("2004-1-1")
+begindate <- as.Date("2009-1-1")
+enddate <- as.Date("2020-6-30")
+intervalDateNumber <- 1
+#returns <- readLogReturn_parallel(yTickers, begindate, enddate, nregDoPar = 8)
+returns <- readLogReturn(yTickers, begindate, enddate)
+
+pDJ <- readHistoryStockDataFromYahoo("^DJI", begindate, enddate)
+djRet <- diff(log( pDJ$Adj.Close[seq(1,length(pDJ$Adj.Close), by = intervalDateNumber)] ))
+
+screensize <- 750
+reBalanceTerm <- 10
+repeatNumber <- 1+floor((nrow(returns)-screensize)/reBalanceTerm)
+tic()
+cl <- makePSOCKcluster(2)
+registerDoParallel(cl) 
+res <- foreach( i=1:repeatNumber ) %dopar% {
+  source("init_asymratio_functions_boundedBeta.R")
+#res <- vector(mode = "list", length = repeatNumber)
+#for( i in 29:repeatNumber )  {
+#  print(i)
+  #Sharpe Ratio Maximization
+  covmtx <- cov(returns[(1+reBalanceTerm*(i-1)):(screensize+reBalanceTerm*(i-1)),])
+  mvec <- colMeans(returns[(1+reBalanceTerm*(i-1)):(screensize+reBalanceTerm*(i-1)),])
+  r0 <- 0#0.025/252
+  x0 <- matrix(data = 1/n, nrow = 1, ncol = numofelements)
+  optResSharpe <- fmincon(x0 = x0, 
+                          fn = functional::Curry(nsharperatio, r = r0, mvec = mvec, covmtx = covmtx),
+                          A = -diag(numofelements), b = matrix(data = 0, nrow = numofelements, ncol = 1),
+                          Aeq = matrix(data = 1, nrow = 1, ncol = numofelements), beq = 1,
+                          lb = NULL, ub = NULL)
+  
+  
+  #MNTS Ratio Maximization
+  rdj <- djRet[(1+reBalanceTerm*(i-1)):(screensize+reBalanceTerm*(i-1))]
+  stdntsparam_dj <- fitstdnts( rawdat=(rdj-mean(rdj))/sd(rdj) )
+  alth <- c(stdntsparam_dj[1], stdntsparam_dj[2])
+  st <- fitmnts(returns[(1+reBalanceTerm*(i-1)):(screensize+reBalanceTerm*(i-1)),], numofelements, alphaNtheta = alth)
+  resfmin <- optimize(f = nsharpeBeta,
+                      #x0 = optResSharpe$par,
+                      #interval = c(min(st$beta), max(st$beta)),
+                      #interval = c(0, max(st$beta)),
+                      #interval = c(sum(optResSharpe$par*st$beta)*0.9999, max(st$beta)),
+                      x0=x0,
+                      #interval = c(sum(t(x0)*st$beta)*0.9999, max(st$beta)),
+                      interval = c(min(st$beta), max(st$beta)),
+                      r=r0, 
+                      mvec = mvec, 
+                      covmtx = covmtx, 
+                      alpha = st$alpha, 
+                      theta = st$theta,
+                      sbVec = st$beta)
+  wstar <- getAsymRatioMaxPort(bpoint = resfmin$minimum,
+                               #x0 = optResSharpe$par,
+                               x0 = x0,
+                               r=r0, 
+                               mvec = mvec, 
+                               covmtx = covmtx, 
+                               alpha = st$alpha, 
+                               theta = st$theta,
+                               sbVec = st$beta)
+  
+  PerfOptRes <- list(st = st, wsharpe = optResSharpe$par, wstar = wstar)
+  return(PerfOptRes)
+  #res[[i]] <- PerfOptRes
+}
+stopCluster(cl)
+toc()
+
+wMtx <- t(matrix(data = res[[1]]$wstar, nrow = numofelements, ncol = reBalanceTerm))
+for (i in 2:(repeatNumber-1) )
+  wMtx <- rbind(wMtx, t(matrix(data = res[[i]]$wstar, nrow = numofelements, ncol = reBalanceTerm)))
+
+if (screensize+reBalanceTerm*(repeatNumber-1)<nrow(returns))
+  wMtx <- rbind(wMtx, t(matrix(data = res[[repeatNumber]]$wstar, 
+                               nrow = numofelements, 
+                               ncol = nrow(returns)-(screensize+reBalanceTerm*(repeatNumber-1))
+                              )
+                        )
+                )
+wMtxSharpeRatio <- t(matrix(data = res[[1]]$wsharpe, 
+                            nrow = numofelements, ncol = reBalanceTerm))
+for (i in 2:(repeatNumber-1) )
+  wMtxSharpeRatio <- rbind(wMtxSharpeRatio, 
+                           t(matrix(data = res[[i]]$wsharpe, 
+                                    nrow = numofelements, 
+                                    ncol = reBalanceTerm)))
+
+if (screensize+reBalanceTerm*(repeatNumber-1)<nrow(returns))
+  wMtxSharpeRatio <- rbind(wMtxSharpeRatio, 
+                           t(matrix(
+                             data = res[[repeatNumber]]$wsharpe, 
+                             nrow = numofelements, 
+                             ncol = nrow(returns)-(screensize+reBalanceTerm*(repeatNumber-1))
+                           )                   
+                           )
+  )
+
+
+#pDJ <- readHistoryStockDataFromYahoo("^DJI", begindate, enddate)
+#djRet <- diff(log( pDJ$Adj.Close[seq(1,length(pDJ$Adj.Close), by = intervalDateNumber)] ))
+djDate <- pDJ$Date[seq(1,length(pDJ$Adj.Close), by = intervalDateNumber)]
+djDate <- djDate[2:length(djDate)]
+
+#djRet <- readLogReturn_parallel("^DJI", begindate, enddate)
+hrDate <- djDate[(screensize+1):nrow(returns)]
+hr <- rowSums(returns[(screensize+1):nrow(returns),]*wMtx)
+hrCumRet <- cumsum(hr)
+
+shRet <- rowSums(returns[(screensize+1):nrow(returns),]*wMtxSharpeRatio )
+shCumRet <- cumsum(shRet)
+
+eqw <- rowSums(returns[(screensize+1):nrow(returns),])/numofelements
+eqwCumRet <- cumsum(eqw)
+
+djr_sub <- djRet[(screensize+1):length(djRet)]
+djCumRet <- cumsum(djr_sub)
+
+
+#rangeindex <-  1:2300 #best combination 10days rebalancing 1:1800
+rangeindex <- 1:length(shCumRet)
+#rangeindex <- 1400:length(shCumRet)
+rangeindex <-  1:1800
+
+plot(hrDate[rangeindex], shCumRet[rangeindex]-shCumRet[rangeindex[1]], type = 'l', col = "green", xlab = "date", ylab = "cumulative return")
+lines(hrDate[rangeindex], hrCumRet[rangeindex]-hrCumRet[rangeindex[1]], type = 'l', col = "black")
+lines(hrDate[rangeindex], eqwCumRet[rangeindex]-eqwCumRet[rangeindex[1]], type = 'l', col = "blue")
+lines(hrDate[rangeindex], djCumRet[rangeindex]-djCumRet[rangeindex[1]], type = 'l', col = "red")
+legend(x=hrDate[floor((max(rangeindex)-min(rangeindex))/2)], 
+       legend = c("Sharpe Ratio Max", "MNTS", "Equally Weighted", "DJIA"), 
+       col = c("green", "black", "blue", "red"), 
+       lty = 1)
+
+
+resulttable <- c( mean(hr[rangeindex]), 
+                  mean(shRet[rangeindex]), 
+                  mean(eqw[rangeindex]), 
+                  mean(djr_sub[rangeindex]) )
+resulttable <- rbind( resulttable, 
+                      c(sd(hr[rangeindex]), 
+                        sd(shRet[rangeindex]), 
+                        sd(eqw[rangeindex]), 
+                        sd(djr_sub[rangeindex]) )
+)
+resulttable <- rbind( resulttable, 
+                      c(-quantile(hr[rangeindex], 0.01), 
+                        -quantile(shRet[rangeindex], 0.01), 
+                        -quantile(eqw[rangeindex], 0.01), 
+                        -quantile(djr_sub[rangeindex], 0.01) )
+)
+resulttable <- rbind( resulttable, 
+                      c( emp_CVaR_ret(0.01,hr[rangeindex]), 
+                         emp_CVaR_ret(0.01,shRet[rangeindex]), 
+                         emp_CVaR_ret(0.01,eqw[rangeindex]), 
+                         emp_CVaR_ret(0.01,djr_sub[rangeindex]) )
+)
+
+resulttable <- rbind( resulttable, 
+                      resulttable[1,]/resulttable[2,])
+resulttable <- rbind( resulttable, 
+                      resulttable[1,]/resulttable[3,])
+resulttable <- rbind( resulttable, 
+                      resulttable[1,]/resulttable[4,])
+
+rownames(resulttable) <- c("mean", "std", "VaR", "CVaR", "Sharpe Ratio", "VaR Ratio", "CVaR Ratio")
+colnames(resulttable) <- c("MNTS", "Sharpe Ratio Max", "Euqally Weighted", "DJIA")
+
+xtable(resulttable, display = c("s","e","e","e","e"))
+

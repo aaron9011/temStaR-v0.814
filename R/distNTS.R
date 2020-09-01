@@ -612,6 +612,7 @@ change_stdntsparam2ntsparam <-function(stdparam, mu, sig, dt = 1){
   gam = sig*sqrt(1-stdparam[3]^2*(2-a)/(2*th))
   mu = mu
   ntsparam = c(a,th, bet, gam, mu, dt)
+  names(ntsparam) <- c("alpha", "theta", "beta", "gamma", "mu", "dt")
   return( ntsparam )
 }
 
@@ -648,8 +649,9 @@ change_ntsparam2stdntsparam <-function(ntsparam){
     sig_std <- sqrt(gam^2*dt+bet^2*dt*z)
     mu_std <- m*dt
   }
-
-  param <- list(stdparam=c(a, th_std, bet_std), mu=mu_std, sig=sig_std)
+  stdntsparam <- c(a, th_std, bet_std)
+  names(stdntsparam) <- c("alpha", "theta", "beta")
+  param <- list(stdparam=stdntsparam, mu=mu_std, sig=sig_std)
   return( param )
 }
 
