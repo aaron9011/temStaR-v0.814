@@ -61,8 +61,12 @@ strPMNTS <- list(ndim = 2,
                  alpha = 0.1888129 ,
                  theta = 0.523042,
                  beta =  c( -0.04632938,  0.04063555 ),
-                 Rho = matrix( data = c(1.0, 0.469883, 0.469883, 1.0), nrow = 2, ncol = 2)
-                 CovMtx = matrix( data = c(0.0002626304, 0.0001740779, 0.0001740779, 0.0005334452), nrow = 2, ncol = 2)
+                 Rho = matrix( data = c(1.0, 0.469883,
+                                       0.469883, 1.0),
+                               nrow = 2, ncol = 2)
+                 CovMtx = matrix( data = c(0.0002626304, 0.0001740779,
+                                         0.0001740779, 0.0005334452),
+                                 nrow = 2, ncol = 2)
 )
 w <- c(0.3, 0.7)
 res <- setPortfolioParam(strPMNTS,w)

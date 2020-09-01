@@ -5,6 +5,7 @@
 \title{getPortNTSParam}
 \usage{
 \code{res <- setPortfolioParam(strPMNTS,w)}
+\code{res <- setPortfolioParam(strPMNTS,w, FALSE)}
 }
 \arguments{
 \item{strPMNTS}{Structure of parameters for the n-dimensional NTS distribution.
@@ -26,6 +27,18 @@
 \code{res$Sigma} : Covariance \eqn{\Sigma} matrix of return data \eqn{r}.}
 
 \item{w}{Capital allocation weight vector.}
+
+\item{stdform}{If \code{stdform} is \code{FALSE}, then the return parameter has the following representation
+
+\eqn{R_p = <w, r> = \mu + diag(\sigma) X},
+
+where
+
+\eqn{X} follows \eqn{stdNTS_1(\alpha, \theta, \beta, 1)}.
+
+If \code{stdform} is \code{TRUE}, then the return parameter has the following representation
+
+\eqn{R_p = <w, r>} follows \eqn{stdNTS_1(\alpha, \theta, \beta, \gamma, \mu)}}
 }
 \value{
 The weighted sum follows 1-dimensional NTS.
@@ -61,9 +74,13 @@ strPMNTS <- list(ndim = 2,
                  alpha = 0.1888129 ,
                  theta = 0.523042,
                  beta =  c( -0.04632938,  0.04063555 ),
-                 Rho = matrix( data = c(1.0, 0.469883, 0.469883, 1.0), nrow = 2, ncol = 2),
-                 CovMtx = matrix( data = c(0.0002626304, 0.0001740779, 0.0001740779, 0.0005334452), nrow = 2, ncol = 2)
-)
+                 Rho = matrix( data = c(1.0, 0.469883,
+                                       0.469883, 1.0),
+                               nrow = 2, ncol = 2)
+                 CovMtx = matrix( data = c(0.0002626304, 0.0001740779,
+                                         0.0001740779, 0.0005334452),
+                                 nrow = 2, ncol = 2)
+                 )
 w <- c(0.3, 0.7)
 res <- getPortNTSParam(strPMNTS,w)
 

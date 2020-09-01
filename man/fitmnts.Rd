@@ -38,7 +38,8 @@ Structure of parameters for the n-dimensional NTS distribution.
 
 \code{res$beta} : \eqn{\beta} vector (column vector) of the std NTS distribution (X).
 
-\code{res$Rho} : \eqn{\rho} matrix (Correlation) of the std NTS distribution (X).
+\code{res$Rho} : \eqn{\rho} matrix of the std NTS distribution (X),
+which is correlation matrix of epsilon.
 
 \code{res$CovMtx} : Covariance matrix of return data \eqn{r}.
 }
