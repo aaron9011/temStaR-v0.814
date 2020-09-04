@@ -1,21 +1,6 @@
 {
     "debugBreakpointsState" : {
         "breakpoints" : [
-            {
-                "editor_line_number" : 200,
-                "editor_state" : 2,
-                "function_name" : "fitmnts",
-                "function_steps" : "",
-                "id" : 0,
-                "is_package_breakpoint" : true,
-                "is_pending_debug_completion" : false,
-                "line_number" : 200,
-                "needs_updated_steps" : false,
-                "package_name" : "temStaR",
-                "path" : "~/GitHub/temStaR-v0.814/R/distMultiNTS.R",
-                "state" : 2,
-                "type" : 0
-            }
         ]
     }
 }

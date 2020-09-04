@@ -213,7 +213,7 @@ fitmnts <- function( returndata, n, alphaNtheta = NULL, stdflag = FALSE ){
   strPMNTS$Rho <- igam%*%strPMNTS$Rho%*%igam
   #print(strPMNTS$Rho)
   rho <- nearPD(strPMNTS$Rho, corr=TRUE)
-  strPMNTS$Rho <- rho$mat
+  strPMNTS$Rho <- matrix(data = as.numeric(rho$mat), ncol = n, nrow = n)
 
   return(strPMNTS)
 }
