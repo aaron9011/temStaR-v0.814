@@ -5,9 +5,9 @@
 \title{fitmnts}
 \usage{
 \code{res <- fitmnts(returndata, n)}
-\code{res <- fitmnts(returndata, n, alphaNtheta = c(alpha, theta)}
-\code{res <- fitmnts(returndata, n, stdflag = TRUE }
-\code{res <- fitmnts(returndata, n, alphaNtheta = c(alpha, theta), stdflag = TRUE}
+\code{res <- fitmnts(returndata, n, alphaNtheta = c(alpha, theta))}
+\code{res <- fitmnts(returndata, n, stdflag = TRUE ) }
+\code{res <- fitmnts(returndata, n, alphaNtheta = c(alpha, theta), stdflag = TRUE)}
 }
 \arguments{
 \item{returndata}{Raw data to fit the parameters.
@@ -20,7 +20,7 @@ The number of row of the matrix is the number of assets.}
 \item{alphaNtheta}{If \eqn{\alpha} and \eqn{\theta} are given,
 then put those numbers in this parameter.
 The function fixes those parameters and fits other remaining parameters.
-If you set \code{alphaNtheta = NaN},
+If you set \code{alphaNtheta = NULL},
 then the function fits all parameters including \eqn{\alpha} and \eqn{\theta}.}
 
 \item{stdflag}{If you want only standard NTS parameter fit, set this value be TRUE.}
@@ -61,9 +61,9 @@ library(spatstat)
 library(Matrix)
 library(quantmod)
 
-getSymbols("^GSPC", src="yahoo", from = "2016-1-1", to = "2020-12-31")
+getSymbols("^GSPC", src="yahoo", from = "2016-1-1", to = "2020-08-31")
 pr1 <- as.numeric(GSPC$GSPC.Adjusted)
-getSymbols("^DJI", src="yahoo", from = "2016-1-1", to = "2020-12-31")
+getSymbols("^DJI", src="yahoo", from = "2016-1-1", to = "2020-08-31")
 pr2 <- as.numeric(DJI$DJI.Adjusted)
 
 returndata <- matrix(data = c(diff(log(pr1)),diff(log(pr2))),
@@ -73,13 +73,13 @@ res <- fitmnts( returndata = returndata, n=2 )
 
 #Fix alpha and theta.
 #Estimate alpha dna theta from DJIA and use those parameter for IBM, INTL parameter fit.
-getSymbols("^DJI", src="yahoo", from = "2020-8-25", to = "2020-12-31")
+getSymbols("^DJI", src="yahoo", from = "2020-8-25", to = "2020-08-31")
 prDJ <- as.numeric(DJI$DJI.Adjusted)
 ret <- diff(log(prDJ))
 ntsparam <-  fitnts(ret)
-getSymbols("IBM", src="yahoo", from = "2016-1-1", to = "2020-12-31")
+getSymbols("IBM", src="yahoo", from = "2016-1-1", to = "2020-08-31")
 pr1 <- as.numeric(IBM$IBM.Adjusted)
-getSymbols("INTL", src="yahoo", from = "2016-1-1", to = "2020-12-31")
+getSymbols("INTL", src="yahoo", from = "2016-1-1", to = "2020-08-31")
 pr2 <- as.numeric(INTL$INTL.Adjusted)
 
 returndata <- matrix(data = c(diff(log(pr1)),diff(log(pr2))),
