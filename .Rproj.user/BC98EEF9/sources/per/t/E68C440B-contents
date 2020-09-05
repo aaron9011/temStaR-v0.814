@@ -1,0 +1,30 @@
+dBivNorm_Subord <- function( t, x, alpha, theta, beta, rhoMtx ){
+  gamma <- sqrt(1-(2-alpha)/(2*theta)*beta^2)
+  mu <- beta*(t-1)
+  Sig[1,1] <- gamma[1]^2*t
+  Sig[2,2] <- gamma[2]^2*t
+  Sig[1,2] <- gamma[1]*gamma[2]*rhoMtx[1,2]*t
+  Sig[2,1] <- Sig[1,2]
+  return( dmvnorm(x, mean=mu, sigma = Sig ) )
+}
+
+func_indegrand <- function(t, x, st){
+  fe <- dBivNorm_Subord(t,
+                  x = x,
+                  alpha = st$alpha,
+                  theta = st$theta,
+                  beta = st$beta,
+                  rhoMtx = st$Rho)
+  ft <- temStaR::dsubTS(t, c( st$alpha,  st$theta))
+}
+
+dBivariateStdNTS <- function( x, st, ub ){
+  integral(
+    functional::Curry(dBivNorm_Subord,
+                      x = x,
+                      alpha = st$alpha,
+                      theta = st$theta,
+                      beta = st$beta,
+                      rhoMtx = st$Rho)
+    )
+}

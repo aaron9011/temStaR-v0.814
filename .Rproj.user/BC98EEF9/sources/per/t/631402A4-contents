@@ -23,7 +23,8 @@ res <- fitmnts( returndata = returndata,
                 n = 2,
                 alphaNtheta = c(ntsparam["alpha"], ntsparam["theta"])  )
 
-pmvnorm(lower=rep(-Inf, res$ndim), upper=c(1,4), mean=rep(0, res$ndim), corr=matrix(data = as.numeric(res$Rho), ncol = 2, nrow = 2))
-#pmvnorm(lower=rep(-Inf, m), upper=c(1,4,2), mean=rep(0, m), corr=sigma)
+pmvnorm(lower=rep(-Inf, res$ndim), upper=c(1,4), mean=rep(0, res$ndim),
+        corr=res$Rho)
+          #pmvnorm(lower=rep(-Inf, m), upper=c(1,4,2), mean=rep(0, m), corr=sigma)
 
 #nbvcdf (0, 0, 1, 1, 0)
