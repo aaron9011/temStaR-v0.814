@@ -49,7 +49,7 @@ psubTS <- function(x, subtsparam){
 #' @export
 #' @description quantile of TS Subordinator
 qsubTS <- function(u, subtsparam){
-  ipcts(u, subtsparam)
+  ipsubTS(u, subtsparam)
 }
 
 #' @export
