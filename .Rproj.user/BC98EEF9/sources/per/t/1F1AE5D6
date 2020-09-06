@@ -5,15 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "2065262581",
+    "hash" : "3848171577",
     "id" : "1F1AE5D6",
-    "lastKnownWriteTime" : 1599346539,
-    "last_content_update" : 1599346539157,
+    "lastKnownWriteTime" : 1599399863,
+    "last_content_update" : 1599399863342,
     "path" : "~/GitHub/temStaR-v0.814/R/distSubTS.R",
     "project_path" : "R/distSubTS.R",
     "properties" : {
-        "cursorPosition" : "19,38",
-        "scrollLine" : "0"
+        "cursorPosition" : "63,20",
+        "scrollLine" : "36"
     },
     "read_only" : false,
     "read_only_alternatives" : [

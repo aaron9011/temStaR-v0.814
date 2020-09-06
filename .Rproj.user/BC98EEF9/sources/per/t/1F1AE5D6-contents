@@ -31,6 +31,8 @@ dsubTS <- function(x, subtsparam){
   return( pdf )
 }
 
+#' @export
+#' @description cdf of TS Subordinator
 psubTS <- function(x, subtsparam){
   alpha <- subtsparam[1]
   theta <- subtsparam[2]
@@ -44,16 +46,22 @@ psubTS <- function(x, subtsparam){
   return( cdf_subts )
 }
 
+#' @export
+#' @description quantile of TS Subordinator
 qsubTS <- function(u, subtsparam){
   ipcts(u, subtsparam)
 }
 
+#' @export
+#' @description rand of TS Subordinator
 rsubTS <- function(n, subtsparam){
   u <- rand(1,n)
   r <- ipsubTS(u, subtsparam)
   return( c(r) )
 }
 
+#' @export
+#' @description icdf of TS Subordinator
 ipsubTS <-function( u, subtsparam, maxt = 10, du = 0.01){
   arg <- seq(from = du, to = maxt, by = du)
   c <- psubTS( arg, subtsparam )
