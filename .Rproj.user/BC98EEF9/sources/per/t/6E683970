@@ -5,15 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "1325968544",
+    "hash" : "575256538",
     "id" : "6E683970",
-    "lastKnownWriteTime" : 1599245910,
-    "last_content_update" : 1599245910,
+    "lastKnownWriteTime" : 1599504585,
+    "last_content_update" : 1599504585822,
     "path" : "~/GitHub/temStaR-v0.814/R/distMultiNTS.R",
     "project_path" : "R/distMultiNTS.R",
     "properties" : {
-        "cursorPosition" : "255,27",
-        "scrollLine" : "0"
+        "cursorPosition" : "606,84",
+        "scrollLine" : "597"
     },
     "read_only" : false,
     "read_only_alternatives" : [

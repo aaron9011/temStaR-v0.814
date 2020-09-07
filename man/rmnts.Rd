@@ -21,7 +21,7 @@ rmnts(strPMNTS, numofsample, rW = NaN, rTau = NaN)
 
 \code{strPMNTS$beta} : \eqn{\beta} vector (column vector) of the std NTS distribution (X).
 
-\code{strPMNTS$Rho} : \eqn{\Sigma} (\eqn{\rho}) matrix of the std NTS distribution (X).}
+\code{strPMNTS$Rho} : \eqn{\rho} matrix of the std NTS distribution (X).}
 
 \item{numofsample}{number of samples.}
 }

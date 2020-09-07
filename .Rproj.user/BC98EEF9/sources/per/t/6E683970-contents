@@ -22,7 +22,7 @@
 #'
 #' \code{strPMNTS$beta} : \eqn{\beta} vector (column vector) of the std NTS distribution (X).
 #'
-#' \code{strPMNTS$Rho} : \eqn{\Sigma} (\eqn{\rho}) matrix of the std NTS distribution (X).
+#' \code{strPMNTS$Rho} : \eqn{\rho} matrix of the std NTS distribution (X).
 #'
 #' @param numofsample number of samples.
 #'
@@ -530,4 +530,284 @@ portfolioCVaRmnts <- function(strPMNTS, w, eta){
   ntsparam <- getPortNTSParam(strPMNTS, w)
   CVaR <- (- ntsparam$mu + ntsparam$sig * cvarnts(eta, ntsparam$stdparam))
   return(CVaR)
+}
+
+
+#' @export
+#' @title pmnts
+#' @description \code{pmnts} calculates the cdf values of the multivariate NTS distribution:
+#' \eqn{F(x_1, \cdots, x_n)=P(x_n<R_1, \cdots, x_n<R_n)}.
+#' The multivariate NTS random vector \eqn{R = (R_1, \cdots, R_n)} is defined
+#'
+#' \eqn{R = \mu + diag(\sigma) X},
+#'
+#' where
+#'
+#' \eqn{X} follows \eqn{stdNTS_n(\alpha, \theta, \beta, \Sigma)}
+#'
+#' @param x array of the \eqn{(x_1, \cdots, x_n)}
+#' @param st Structure of parameters for the n-dimensional NTS distribution.
+#'
+#' \code{st$ndim} : dimension
+#'
+#' \code{st$mu} : \eqn{\mu} mean vector (column vector) of the input data.
+#'
+#' \code{st$sigma} : \eqn{\sigma} standard deviation vector (column vector) of the input data.
+#'
+#' \code{st$alpha} : \eqn{\alpha} of the std NTS distribution (X).
+#'
+#' \code{st$theta} : \eqn{\theta} of the std NTS distribution (X).
+#'
+#' \code{st$beta} : \eqn{\beta} vector (column vector) of the std NTS distribution (X).
+#'
+#' \code{st$Rho} : \eqn{\rho} matrix of the std NTS distribution (X).
+#'
+#' @param numofsample number of samples.
+#'
+#' @return Simulated NTS random vectors
+#' @references
+#' Kim, Y. S. (2020) Portfolio Optimization on the Dispersion Risk and the Asymmetric Tail Risk
+#' \url{https://arxiv.org/pdf/2007.13972.pdf}
+#'
+#' @examples
+#' library(mvtnorm)
+#' strPMNTS <- list(ndim = 2,
+#'               mu = c( 0.5, -1.5 ),
+#'               sigma = c( 2, 3 ),
+#'               alpha = 0.1,
+#'               theta = 3,
+#'               beta =  c( 0.1, -0.3 ),
+#'               Rho = matrix( data = c(1.0, 0.75, 0.75, 1.0),
+#'                             nrow = 2, ncol = 2)
+#' )
+#' pmnts(c(0.6, -1.0), st = strPMNTS)
+#'
+#'
+#' strPMNTS <- list(ndim = 2,
+#'                  mu = c( 0, 0, 0 ),
+#'                  sigma = c( 1, 1, 1 ),
+#'                  alpha = 0.1,
+#'                  theta = 3,
+#'                  beta =  c( 0.1, -0.3, 0 ),
+#'                  Rho = matrix(
+#'                      data = c(1.0, 0.75, 0.1, 0.75, 1.0, 0.2, 0.1, 0.2, 1.0),
+#'                      nrow = 3, ncol = 3)
+#' )
+#' pmnts(c(0,0,0), st = strPMNTS)
+#' dmnts(c(0,0,0), st = strPMNTS)
+#'
+pmnts <- function( x, st, subTS = NULL ){
+  xadj <- (x-st$beta)/st$sigma
+  return(pMultiStdNTS(xadj, st, subTS))
+}
+
+#' @export
+#' @title dmnts
+#' @description \code{dmnts} calculates the density of the multivariate NTS distribution:
+#' \eqn{f(x_1, \cdots, x_n)=\frac{d^n}{dx_1\cdots dx_n}P(x_n<R_1, \cdots, x_n<R_n)}.
+#' The multivariate NTS random vector \eqn{R = (R_1, \cdots, R_n)} is defined
+#'
+#' \eqn{R = \mu + diag(\sigma) X},
+#'
+#' where
+#'
+#' \eqn{X} follows \eqn{stdNTS_n(\alpha, \theta, \beta, \Sigma)}
+#'
+#' @param x array of the \eqn{(x_1, \cdots, x_n)}
+#' @param st Structure of parameters for the n-dimensional NTS distribution.
+#'
+#' \code{st$ndim} : dimension
+#'
+#' \code{st$mu} : \eqn{\mu} mean vector (column vector) of the input data.
+#'
+#' \code{st$sigma} : \eqn{\sigma} standard deviation vector (column vector) of the input data.
+#'
+#' \code{st$alpha} : \eqn{\alpha} of the std NTS distribution (X).
+#'
+#' \code{st$theta} : \eqn{\theta} of the std NTS distribution (X).
+#'
+#' \code{st$beta} : \eqn{\beta} vector (column vector) of the std NTS distribution (X).
+#'
+#' \code{st$Rho} : \eqn{\rho} matrix of the std NTS distribution (X).
+#'
+#' @param numofsample number of samples.
+#'
+#' @return Simulated NTS random vectors
+#' @references
+#' Kim, Y. S. (2020) Portfolio Optimization on the Dispersion Risk and the Asymmetric Tail Risk
+#' \url{https://arxiv.org/pdf/2007.13972.pdf}
+#'
+#' @examples
+#' library(mvtnorm)
+#' strPMNTS <- list(ndim = 2,
+#'               mu = c( 0.5, -1.5 ),
+#'               sigma = c( 2, 3 ),
+#'               alpha = 0.1,
+#'               theta = 3,
+#'               beta =  c( 0.1, -0.3 ),
+#'               Rho = matrix( data = c(1.0, 0.75, 0.75, 1.0),
+#'                             nrow = 2, ncol = 2)
+#' )
+#' dmnts(c(0.6, -1.0), st = strPMNTS)
+#'
+#'
+#' strPMNTS <- list(ndim = 2,
+#'                  mu = c( 0, 0, 0 ),
+#'                  sigma = c( 1, 1, 1 ),
+#'                  alpha = 0.1,
+#'                  theta = 3,
+#'                  beta =  c( 0.1, -0.3, 0 ),
+#'                  Rho = matrix(
+#'                      data = c(1.0, 0.75, 0.1, 0.75, 1.0, 0.2, 0.1, 0.2, 1.0),
+#'                      nrow = 3, ncol = 3)
+#' )
+#' pmnts(c(0,0,0), st = strPMNTS)
+#' dmnts(c(0,0,0), st = strPMNTS)
+#'
+dmnts <- function( x, st, subTS = NULL ){
+  xadj <- (x-st$beta)/st$sigma
+  return(dMultiStdNTS(xadj, st, subTS)/prod(st$sigma))
+}
+
+#' @export
+#' @title copulaStdNTS
+#' @description \code{copulaStdNTS} calculates the stdNTS copula values
+#'
+copulaStdNTS <- function(u, st, subTS = NULL){
+  x <- matrix(nrow = length(u), ncol = 1)
+  for (j in 1:length(u)){
+    x[j] <- temStaR::qnts(u[j], c(st$alpha, st$theta, st$beta[j]))
+  }
+  pMultiStdNTS( as.numeric(x), st, subTS )
+}
+
+#' @export
+#' @title dcopulaStdNTS
+#' @description \code{dcopulaStdNTS} calculates
+#' density of the stdNTS copula.
+#'
+dcopulaStdNTS <- function(u, st, subTS = NULL){
+  x <- matrix(nrow = length(u), ncol = 1)
+  y <- 1
+  for (j in 1:length(u)){
+    x[j] <- temStaR::qnts(u[j], c(st$alpha, st$theta, st$beta[j]))
+    y <- y*temStaR::dnts(x[j], c(st$alpha, st$theta, st$beta[j]))
+  }
+  dMultiStdNTS( as.numeric(x), st, subTS )/y
+}
+
+#' @export
+#' @title importantSamplining
+#' @description \code{importantSamplining} do the important sampling for the TS Subordinator.
+#'
+importantSamplining <- function( alpha, theta ){
+  u  <- c(
+    seq(from=0, to = 0.009, length.out = 10),
+    seq(from=0.01, to = 0.09, length.out = 9),
+    seq(from=0.1, to = 0.9, length.out = 9),
+    0.95, 0.99, 0.999, 0.9999, 0.99999, 0.999999
+  )
+  ti <- temStaR::qsubTS(u, c(alpha, theta))
+  ti = c(ti, max(ti)*2)
+  subtsi <- temStaR::dsubTS(ti, c(alpha,theta))
+  subTS <- list( ti = ti, subtsi = subtsi)
+}
+
+dMultiNorm_Subord <- function( tVec, x, alpha, theta, beta, rhoMtx ){
+  gamma <- as.numeric(sqrt(1-(2-alpha)/(2*theta)*beta^2))
+  re <- matrix(nrow = length(tVec), ncol = 1)
+  for (i in 1:length(tVec) ){
+    t <- tVec[i]
+    #mu <- beta*(t-1)
+    #Sig <- matrix(nrow = 2, ncol = 2)
+    #Sig[1,1] <- gamma[1]^2*t
+    #Sig[2,2] <- gamma[2]^2*t
+    #Sig[1,2] <- gamma[1]*gamma[2]*rhoMtx[1,2]*t
+    #Sig[2,1] <- Sig[1,2]
+    mu <- beta*(t-1)
+    Sig <- t*(cbind(gamma)%*%rbind(gamma))*rhoMtx
+
+    re[i] <- dmvnorm(x, mean=mu, sigma = Sig )
+  }
+  return(re)
+}
+
+func_indegrand <- function(t, x, st, ti, subtsi){
+  fe <- dMultiNorm_Subord(t,
+                          x = x,
+                          alpha = st$alpha,
+                          theta = st$theta,
+                          beta = st$beta,
+                          rhoMtx = st$Rho)
+  ft <- pracma::pchip(ti, subtsi, t)
+  #ft <- temStaR::dsubTS(t, c( st$alpha,  st$theta))
+  return( fe*ft )
+}
+
+dMultiStdNTS <- function( x, st, subTS = NULL ){
+  if ( is.null(subTS) ){
+    subTS <- importantSamplining(st$alpha, st$theta)
+  }
+  ti <- subTS$ti
+  subtsi <- subTS$subtsi
+
+  d <- pracma::quad(
+    functional::Curry(func_indegrand,
+                      x = x,
+                      st = st,
+                      ti = ti,
+                      subtsi = subtsi),
+    xa = 0,
+    xb = max(ti)
+  )
+  return(d)
+}
+
+pMultiNorm_Subord <- function( tVec, x, alpha, theta, beta, rhoMtx ){
+  gamma <- as.numeric(sqrt(1-(2-alpha)/(2*theta)*beta^2))
+  re <- matrix(nrow = length(tVec), ncol = 1)
+  for (i in 1:length(tVec) ){
+    t <- tVec[i]
+    if (t == 0){
+      re[i] <- 0
+    }
+    else{
+      adjx <- (x-beta*(t-1))/(gamma*sqrt(t))
+      re[i] <- pmvnorm(lower = c(-Inf, -Inf),
+                       upper = adjx, mean = rep(0, length(x)), sigma = rhoMtx )
+    }
+  }
+  return(re)
+}
+
+func_indegrand_cdf <- function(t, x, st, ti, subtsi){
+  Gt <- pMultiNorm_Subord(t,
+                          x = x,
+                          alpha = st$alpha,
+                          theta = st$theta,
+                          beta = st$beta,
+                          rhoMtx = st$Rho)
+  ft <- pracma::pchip(ti, subtsi, t)
+  #ft <- temStaR::dsubTS(t, c( st$alpha,  st$theta))
+  return( Gt*ft )
+}
+
+pMultiStdNTS <- function( x, st, subTS = NULL ){
+  if ( is.null(subTS) ){
+    subTS <- importantSamplining(st$alpha, st$theta)
+  }
+  ti <- subTS$ti
+  subtsi <- subTS$subtsi
+
+  p <- pracma::quad(
+    functional::Curry(func_indegrand_cdf,
+                      x = x,
+                      st = st,
+                      ti = ti,
+                      subtsi = subtsi),
+    xa = 0,
+    xb = max(ti)
+  )
+  p[p>1]=1
+  return(p)
 }
