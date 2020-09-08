@@ -124,7 +124,7 @@ pnts <- function( xdata, ntsparam,
 #' \eqn{u = P((X(t+s)-X(s))<x)}, where X is the NTS process generated
 #' by the NTS distribution with parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu)}.
 #'
-#' @param vector of probabilities.
+#' @param u vector of probabilities.
 #' @param ntsparam A vector of the NTS parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu)}.
 #' For the NTS process case it is a vector of parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu, t)}.
 #' A vector of standard NTS parameters \eqn{(\alpha, \theta, \beta)}.
@@ -794,7 +794,7 @@ llhfnts <- function(ntsparam, x, cemp, dispF = 0){
 #' If only three parameters are given, it calculates CVaR
 #' of the standard NTS distribution with parameter \eqn{(\alpha, \theta, \beta)}
 #'
-#' @param u Real value between 0 and 1
+#' @param eps the significant level for CVaR. Real value between 0 and 1.
 #' @param ntsparam A vector of the NTS parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu)}.
 #' A vector of the standard NTS parameters \eqn{(\alpha, \theta, \beta)}.
 #'

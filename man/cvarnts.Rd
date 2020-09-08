@@ -7,10 +7,10 @@
 cvarnts(eps, ntsparam)
 }
 \arguments{
+\item{eps}{the significant level for CVaR. Real value between 0 and 1.}
+
 \item{ntsparam}{A vector of the NTS parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu)}.
 A vector of the standard NTS parameters \eqn{(\alpha, \theta, \beta)}.}
-
-\item{u}{Real value between 0 and 1}
 }
 \value{
 CVaR of the NTS distribution.

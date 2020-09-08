@@ -546,3 +546,98 @@ pMultiStdNTS <- function( x, st, subTS = NULL ){
   p[p>1]=1
   return(p)
 }
+
+#' @export
+#' @title pmarginalmnts
+#' @description \code{pmarginalmnts} calculates
+#' the marginal cdf of the \eqn{n}-th element
+#' of the multivariate NTS distributed random variable.
+#'
+#' @patam x the \eqn{x} such that \eqn{F(x) = P(X_n<x)}
+#' @patam n the \eqn{n}-th element to be calculated.
+#' @param st Structure of parameters for the n-dimensional NTS distribution.
+#'
+#'
+pmarginalmnts <- function(x, n, st){
+  if (n>st$ndim){
+    print("n must be less than or equal to st$ndim.")
+    return(NULL)
+  }
+  if (n<1){
+    print("n must be strictly positive integer.")
+    return(NULL)
+  }
+  ntsparam  <- c(st$alpha, st$theta, st$beta[n])
+  xdata <- (x-st$mu[n])/st$sigma[n]
+  return(pnts(xdata, ntsparam))
+}
+
+#' @export
+#' @title dmarginalmnts
+#' @description \code{dmarginalmnts} calculates
+#' the marginal density of the \eqn{n}-th element
+#' of the multivariate NTS distributed random variable.
+#'
+#' @patam x the \eqn{x} such that \eqn{f(x) = \frac{d}{dx}P(X_n<x)}
+#' @patam n the \eqn{n}-th element to be calculated.
+#' @param st Structure of parameters for the n-dimensional NTS distribution.
+#'
+dmarginalmnts <- function(x, n, st){
+  if (n>st$ndim){
+    print("n must be less than or equal to st$ndim.")
+    return(NULL)
+  }
+  if (n<1){
+    print("n must be strictly positive integer.")
+    return(NULL)
+  }
+  xdata <- (x-st$mu[n])/st$sigma[n]
+  ntsparam  <- c(st$alpha, st$theta, st$beta[n])
+  return(dnts(xdata, ntsparam)/st$sigma[n])
+}
+
+#' @export
+#' @title qmarginalmnts
+#' @description \code{qmarginalmnts} calculates
+#' the quantile value of the \eqn{n}-th element
+#' of the multivariate NTS distributed random variable.
+#'
+#' @patam u vector of probabilities.
+#' @patam n the \eqn{n}-th element to be calculated.
+#' @param st Structure of parameters for the n-dimensional NTS distribution.
+#'
+qmarginalmnts <- function(u, n, st){
+  if (n>st$ndim){
+    print("n must be less than or equal to st$ndim.")
+    return(NULL)
+  }
+  if (n<1){
+    print("n must be strictly positive integer.")
+    return(NULL)
+  }
+  ntsparam  <- c(st$alpha, st$theta, st$beta[n])
+  return(st$sigma[n]*qnts(u, ntsparam)+st$mu[n])
+}
+
+#' @export
+#' @title cvarmarginalmnts
+#' @description \code{cvarmarginalmnts} calculates
+#' the CVaR of the \eqn{n}-th element
+#' of the multivariate NTS distributed random variable.
+#'
+#' @param eta the significant level for CVaR. Real value between 0 and 1.
+#' @patam n the \eqn{n}-th element to be calculated.
+#' @param st Structure of parameters for the n-dimensional NTS distribution.
+#'
+cvarmarginalmnts <- function(eta, n, st){
+  if (n>st$ndim){
+    print("n must be less than or equal to st$ndim.")
+    return(NULL)
+  }
+  if (n<1){
+    print("n must be strictly positive integer.")
+    return(NULL)
+  }
+  ntsparam  <- c(st$alpha, st$theta, st$beta[n])
+  return(st$sigma[n]*cvarnts(eta, ntsparam)-st$mu[n])
+}

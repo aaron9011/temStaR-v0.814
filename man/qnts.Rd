@@ -7,11 +7,11 @@
 qnts(u, ntsparam)
 }
 \arguments{
+\item{u}{vector of probabilities.}
+
 \item{ntsparam}{A vector of the NTS parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu)}.
 For the NTS process case it is a vector of parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu, t)}.
 A vector of standard NTS parameters \eqn{(\alpha, \theta, \beta)}.}
-
-\item{vector}{of probabilities.}
 }
 \value{
 The quantile function of the NTS distribution
