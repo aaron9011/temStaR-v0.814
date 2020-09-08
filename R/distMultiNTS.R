@@ -267,272 +267,6 @@ llhfntsFixAlphaTheta <- function(betaparam, alpha, theta, x, cemp, dispF = 0){
   return( MSE )
 }
 
-
-#' @title setPortfolioParam
-#' @description Please use \code{getPortNTSParam} instead of \code{setPortfolioParam}.
-#'
-#' Portfolio return with capital allocation weight is \eqn{R_p=<w,r>},
-#' which is a weighted sum of of elements in the N-dimensional NTS random vector.
-#' \eqn{R_p} becomes an 1-dimensional NTS random variable.
-#' \code{setPortfolioParam} find the parameters of \eqn{R_p}.
-#'
-#' @param strPMNTS Structure of parameters for the n-dimensional NTS distribution.
-#'
-#' \code{strPMNTS$ndim} : dimension
-#'
-#' \code{strPMNTS$mu} : \eqn{\mu} mean vector (column vector) of the input data.
-#'
-#' \code{strPMNTS$sigma} : \eqn{\sigma} standard deviation vector (column vector) of the input data.
-#'
-#' \code{strPMNTS$alpha} : \eqn{\alpha} of the std NTS distribution (X).
-#'
-#' \code{strPMNTS$theta} : \eqn{\theta} of the std NTS distribution (X).
-#'
-#' \code{strPMNTS$beta} : \eqn{\beta} vector (column vector) of the std NTS distribution (X).
-#'
-#' \code{strPMNTS$Rho} : \eqn{\Sigma} matrix of the std NTS distribution (X).
-#'
-#' @param w Capital allocation weight vector.
-#'
-#' @usage
-#' \code{res <- setPortfolioParam(strPMNTS,w)}
-#'
-#' @return The weighted sum follows 1-dimensional NTS.
-#'
-#' \eqn{R_p = <w, r> = \mu + diag(\sigma) X},
-#'
-#' where
-#'
-#' \eqn{X} follows \eqn{stdNTS_1(\alpha, \theta, \beta, 1)}.
-#'
-#' Hence we obtain
-#'
-#' \code{res$mu} : \eqn{\mu} mean of \eqn{R_p}.
-#'
-#' \code{res$sigma} : \eqn{\sigma} standard deviation of \eqn{R_p}.
-#'
-#' \code{res$alpha} : \eqn{\alpha} of \eqn{X}.
-#'
-#' \code{res$theta} : \eqn{\theta} of \eqn{X}.
-#'
-#' \code{res$beta} : \eqn{\beta} \eqn{X}.
-#'
-#' @references
-#' Kim, Y. S. (2020) Portfolio Optimization on the Dispersion Risk and the Asymmetric Tail Risk
-#' \url{https://arxiv.org/pdf/2007.13972.pdf}
-#'
-#' @examples
-#' strPMNTS <- list(ndim = 2,
-#'                  mu = c( 9.876552e-05, 4.747343e-04 ),
-#'                  sigma = c( 0.01620588, 0.02309643 ),
-#'                  alpha = 0.1888129 ,
-#'                  theta = 0.523042,
-#'                  beta =  c( -0.04632938,  0.04063555 ),
-#'                  Rho = matrix( data = c(1.0, 0.469883,
-#'                                        0.469883, 1.0),
-#'                                nrow = 2, ncol = 2)
-#'                  CovMtx = matrix( data = c(0.0002626304, 0.0001740779,
-#'                                          0.0001740779, 0.0005334452),
-#'                                  nrow = 2, ncol = 2)
-#' )
-#' w <- c(0.3, 0.7)
-#' res <- setPortfolioParam(strPMNTS,w)
-#'
-setPortfolioParam <- function(strPMNTS, w){
-  if(strPMNTS$ndim != length(w)){
-    print("The dimension of the weight vector must be the same as strPMNTS$ndim")
-    return(NULL)
-  }
-  w <- matrix(data = w, nrow = strPMNTS$ndim, ncol = 1)
-  m <- sum(w*strPMNTS$mu)
-  b <- sum(w*strPMNTS$sigma*strPMNTS$beta)
-  gammaMtx <- diag(as.numeric(sqrt(1-strPMNTS$beta^2*(2-strPMNTS$alpha)/(2*strPMNTS$theta))))
-  sigMtx <- diag(as.numeric(strPMNTS$sigma))
-  g <- as.numeric(sqrt(t(w)%*%sigMtx%*%gammaMtx%*%strPMNTS$Rho%*%gammaMtx%*%sigMtx%*%w))
-  a <- as.numeric(strPMNTS$alpha)
-  th <- as.numeric(strPMNTS$theta)
-  param <- change_ntsparam2stdntsparam(c(a, th, b, g, m))
-  return(param)
-}
-
-#' @export
-#' @title getPortNTSParam
-#' @description Portfolio return with capital allocation weight is \eqn{R_p=<w,r>},
-#' which is a weighted sum of of elements in the N-dimensional NTS random vector.
-#' \eqn{R_p} becomes an 1-dimensional NTS random variable.
-#' \code{getPortNTSParam} find the parameters of \eqn{R_p}.
-#'
-#' @param strPMNTS Structure of parameters for the n-dimensional NTS distribution.
-#'
-#' \code{strPMNTS$ndim} : dimension
-#'
-#' \code{strPMNTS$mu} : \eqn{\mu} mean vector (column vector) of the input data.
-#'
-#' \code{strPMNTS$sigma} : \eqn{\sigma} standard deviation vector (column vector) of the input data.
-#'
-#' \code{strPMNTS$alpha} : \eqn{\alpha} of the std NTS distribution (X).
-#'
-#' \code{strPMNTS$theta} : \eqn{\theta} of the std NTS distribution (X).
-#'
-#' \code{strPMNTS$beta} : \eqn{\beta} vector (column vector) of the std NTS distribution (X).
-#'
-#' \code{res$Rho} : \eqn{\rho} matrix (Correlation) of the std NTS distribution (X).
-#'
-#' \code{res$Sigma} : Covariance \eqn{\Sigma} matrix of return data \eqn{r}.
-#'
-#' @param w Capital allocation weight vector.
-#' @param stdform If \code{stdform} is \code{FALSE}, then the return parameter has the following representation
-#'
-#' \eqn{R_p = <w, r> = \mu + diag(\sigma) X},
-#'
-#' where
-#'
-#' \eqn{X} follows \eqn{stdNTS_1(\alpha, \theta, \beta, 1)}.
-#'
-#' If \code{stdform} is \code{TRUE}, then the return parameter has the following representation
-#'
-#' \eqn{R_p = <w, r>} follows \eqn{stdNTS_1(\alpha, \theta, \beta, \gamma, \mu)}
-#'
-#' @usage
-#' \code{res <- setPortfolioParam(strPMNTS,w)}
-#' \code{res <- setPortfolioParam(strPMNTS,w, FALSE)}
-#'
-#' @return The weighted sum follows 1-dimensional NTS.
-#'
-#' \eqn{R_p = <w, r> = \mu + diag(\sigma) X},
-#'
-#' where
-#'
-#' \eqn{X} follows \eqn{stdNTS_1(\alpha, \theta, \beta, 1)}.
-#'
-#' Hence we obtain
-#'
-#' \code{res$mu} : \eqn{\mu} mean of \eqn{R_p}.
-#'
-#' \code{res$sigma} : \eqn{\sigma} standard deviation of \eqn{R_p}.
-#'
-#' \code{res$alpha} : \eqn{\alpha} of \eqn{X}.
-#'
-#' \code{res$theta} : \eqn{\theta} of \eqn{X}.
-#'
-#' \code{res$beta} : \eqn{\beta} of \eqn{X}.
-#'
-#' @references
-#' Proposition 2.1 of
-#' Kim, Y. S. (2020) Portfolio Optimization on the Dispersion Risk and the Asymmetric Tail Risk
-#' \url{https://arxiv.org/pdf/2007.13972.pdf}
-#'
-#' @examples
-#' strPMNTS <- list(ndim = 2,
-#'                  mu = c( 9.876552e-05, 4.747343e-04 ),
-#'                  sigma = c( 0.01620588, 0.02309643 ),
-#'                  alpha = 0.1888129 ,
-#'                  theta = 0.523042,
-#'                  beta =  c( -0.04632938,  0.04063555 ),
-#'                  Rho = matrix( data = c(1.0, 0.469883,
-#'                                        0.469883, 1.0),
-#'                                nrow = 2, ncol = 2)
-#'                  CovMtx = matrix( data = c(0.0002626304, 0.0001740779,
-#'                                          0.0001740779, 0.0005334452),
-#'                                  nrow = 2, ncol = 2)
-#'                  )
-#' w <- c(0.3, 0.7)
-#' res <- getPortNTSParam(strPMNTS,w)
-#'
-getPortNTSParam <- function(strPMNTS, w, stdform = TRUE){
-  if(strPMNTS$ndim != length(w)){
-    print("The dimension of the weight vector must be the same as strPMNTS$ndim")
-    return(NULL)
-  }
-  w <- matrix(data = w, nrow = strPMNTS$ndim, ncol = 1)
-  sigmaBar <- as.numeric(sqrt(t(w)%*%strPMNTS$CovMtx%*%w))
-  mbar <- sum(w*strPMNTS$mu)
-  betbar <- sum(w*strPMNTS$sigma*strPMNTS$beta)/sigmaBar
-  stdntsparam <- c(as.numeric(strPMNTS$alpha), as.numeric(strPMNTS$theta), betbar)
-  names(stdntsparam) <- c("alpha", "theta", "beta")
-  param <- list(stdparam = stdntsparam, mu = mbar, sig = sigmaBar)
-  if (stdform == FALSE){
-    param <- change_stdntsparam2ntsparam(param$stdparam, mbar, sigmaBar)
-    param <- param[1:5]
-  }
-  return(param)
-}
-
-#' @export
-#' @title portfolioVaRmnts
-#' @description
-#' Calculate portfolio value at risk on the NTS market model
-#'
-#' @param strPMNTS Structure of parameters for the n-dimensional NTS distribution.
-#'
-#' \code{strPMNTS$ndim} : dimension
-#'
-#' \code{strPMNTS$mu} : \eqn{\mu} mean vector (column vector) of the input data.
-#'
-#' \code{strPMNTS$sigma} : \eqn{\sigma} standard deviation vector (column vector) of the input data.
-#'
-#' \code{strPMNTS$alpha} : \eqn{\alpha} of the std NTS distribution (X).
-#'
-#' \code{strPMNTS$theta} : \eqn{\theta} of the std NTS distribution (X).
-#'
-#' \code{strPMNTS$beta} : \eqn{\beta} vector (column vector) of the std NTS distribution (X).
-#'
-#' \code{res$Rho} : \eqn{\rho} matrix (Correlation) of the std NTS distribution (X).
-#'
-#' \code{res$Sigma} : Covariance \eqn{\Sigma} matrix of return data \eqn{r}.
-#'
-#' @param w Capital allocation weight vector.
-#' @param eta significanlt level
-#' @return portfolio value at risk on the NTS market model
-#'
-portfolioVaRmnts <- function(strPMNTS, w, eta){
-  if(strPMNTS$ndim != length(w)){
-    print("The dimension of the weight vector must be the same as strPMNTS$ndim")
-    return(NULL)
-  }
-  ntsparam <- getPortNTSParam(strPMNTS, w)
-  VaR <- (- ntsparam$mu - ntsparam$sig * qnts(eta, ntsparam$stdparam))
-  return(VaR)
-}
-
-#' @export
-#' @title portfolioCVaRmnts
-#' @description
-#' Calculate portfolio conditional value at risk (expected shortfall) on the NTS market model
-#'
-#' @param strPMNTS Structure of parameters for the n-dimensional NTS distribution.
-#'
-#' \code{strPMNTS$ndim} : dimension
-#'
-#' \code{strPMNTS$mu} : \eqn{\mu} mean vector (column vector) of the input data.
-#'
-#' \code{strPMNTS$sigma} : \eqn{\sigma} standard deviation vector (column vector) of the input data.
-#'
-#' \code{strPMNTS$alpha} : \eqn{\alpha} of the std NTS distribution (X).
-#'
-#' \code{strPMNTS$theta} : \eqn{\theta} of the std NTS distribution (X).
-#'
-#' \code{strPMNTS$beta} : \eqn{\beta} vector (column vector) of the std NTS distribution (X).
-#'
-#' \code{res$Rho} : \eqn{\rho} matrix (Correlation) of the std NTS distribution (X).
-#'
-#' \code{res$Sigma} : Covariance \eqn{\Sigma} matrix of return data \eqn{r}.
-#'
-#' @param w Capital allocation weight vector.
-#' @param eta significanlt level
-#' @return portfolio value at risk on the NTS market model
-#'
-portfolioCVaRmnts <- function(strPMNTS, w, eta){
-  if(strPMNTS$ndim != length(w)){
-    print("The dimension of the weight vector must be the same as strPMNTS$ndim")
-    return(NULL)
-  }
-  ntsparam <- getPortNTSParam(strPMNTS, w)
-  CVaR <- (- ntsparam$mu + ntsparam$sig * cvarnts(eta, ntsparam$stdparam))
-  return(CVaR)
-}
-
-
 #' @export
 #' @title pmnts
 #' @description \code{pmnts} calculates the cdf values of the multivariate NTS distribution:
@@ -678,7 +412,7 @@ copulaStdNTS <- function(u, st, subTS = NULL){
   for (j in 1:length(u)){
     x[j] <- temStaR::qnts(u[j], c(st$alpha, st$theta, st$beta[j]))
   }
-  pMultiStdNTS( as.numeric(x), st, subTS )
+  return(pMultiStdNTS( as.numeric(x), st, subTS ))
 }
 
 #' @export
@@ -693,7 +427,7 @@ dcopulaStdNTS <- function(u, st, subTS = NULL){
     x[j] <- temStaR::qnts(u[j], c(st$alpha, st$theta, st$beta[j]))
     y <- y*temStaR::dnts(x[j], c(st$alpha, st$theta, st$beta[j]))
   }
-  dMultiStdNTS( as.numeric(x), st, subTS )/y
+  return(dMultiStdNTS( as.numeric(x), st, subTS )/y)
 }
 
 #' @export
@@ -711,6 +445,7 @@ importantSamplining <- function( alpha, theta ){
   ti = c(ti, max(ti)*2)
   subtsi <- temStaR::dsubTS(ti, c(alpha,theta))
   subTS <- list( ti = ti, subtsi = subtsi)
+  return(subTS)
 }
 
 dMultiNorm_Subord <- function( tVec, x, alpha, theta, beta, rhoMtx ){
