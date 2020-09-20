@@ -406,6 +406,9 @@ dmnts <- function( x, st, subTS = NULL ){
 #' @export
 #' @title copulaStdNTS
 #' @description \code{copulaStdNTS} calculates the stdNTS copula values
+#' @references
+#'	Y. S. Kim, D. Volkmann (2013), Normal Tempered Stable Copula, Applied Mathematics Letters,  26(7), 676-680
+#'	\url{https://www.sciencedirect.com/science/article/pii/S0893965913000384}
 #'
 copulaStdNTS <- function(u, st, subTS = NULL){
   x <- matrix(nrow = length(u), ncol = 1)
@@ -419,6 +422,9 @@ copulaStdNTS <- function(u, st, subTS = NULL){
 #' @title dcopulaStdNTS
 #' @description \code{dcopulaStdNTS} calculates
 #' density of the stdNTS copula.
+#' @references
+#'	Y. S. Kim, D. Volkmann (2013), Normal Tempered Stable Copula, Applied Mathematics Letters,  26(7), 676-680
+#'	\url{https://www.sciencedirect.com/science/article/pii/S0893965913000384}
 #'
 dcopulaStdNTS <- function(u, st, subTS = NULL){
   x <- matrix(nrow = length(u), ncol = 1)
@@ -448,34 +454,26 @@ importantSamplining <- function( alpha, theta ){
   return(subTS)
 }
 
-dMultiNorm_Subord <- function( tVec, x, alpha, theta, beta, rhoMtx ){
-  gamma <- as.numeric(sqrt(1-(2-alpha)/(2*theta)*beta^2))
+dMultiNorm_Subord <- function( tVec, x, beta, sig0 ){
+  #gamma <- as.numeric(sqrt(1-(2-alpha)/(2*theta)*beta^2))
+  #sig0 <- (cbind(gamma)%*%rbind(gamma))*rhoMtx
   re <- matrix(nrow = length(tVec), ncol = 1)
   for (i in 1:length(tVec) ){
     t <- tVec[i]
-    #mu <- beta*(t-1)
-    #Sig <- matrix(nrow = 2, ncol = 2)
-    #Sig[1,1] <- gamma[1]^2*t
-    #Sig[2,2] <- gamma[2]^2*t
-    #Sig[1,2] <- gamma[1]*gamma[2]*rhoMtx[1,2]*t
-    #Sig[2,1] <- Sig[1,2]
     mu <- beta*(t-1)
-    Sig <- t*(cbind(gamma)%*%rbind(gamma))*rhoMtx
+    Sig <- t*sig0
 
     re[i] <- dmvnorm(x, mean=mu, sigma = Sig )
   }
   return(re)
 }
 
-func_indegrand <- function(t, x, st, ti, subtsi){
+func_indegrand <- function(t, x, beta, sig0, ti, subtsi){
   fe <- dMultiNorm_Subord(t,
                           x = x,
-                          alpha = st$alpha,
-                          theta = st$theta,
-                          beta = st$beta,
-                          rhoMtx = st$Rho)
+                          beta = beta,
+                          sig0 = sig0)
   ft <- pracma::pchip(ti, subtsi, t)
-  #ft <- temStaR::dsubTS(t, c( st$alpha,  st$theta))
   return( fe*ft )
 }
 
@@ -486,10 +484,14 @@ dMultiStdNTS <- function( x, st, subTS = NULL ){
   ti <- subTS$ti
   subtsi <- subTS$subtsi
 
+  gamma <- as.numeric(sqrt(1-(2-st$alpha)/(2*st$theta)*st$beta^2))
+  sig0 <- (cbind(gamma)%*%rbind(gamma))*st$rhoMtx
+
   d <- pracma::quad(
     functional::Curry(func_indegrand,
                       x = x,
-                      st = st,
+                      beta = st$beta,
+                      sig0 = sig0,
                       ti = ti,
                       subtsi = subtsi),
     xa = 0,
