@@ -485,7 +485,7 @@ dMultiStdNTS <- function( x, st, subTS = NULL ){
   subtsi <- subTS$subtsi
 
   gamma <- as.numeric(sqrt(1-(2-st$alpha)/(2*st$theta)*st$beta^2))
-  sig0 <- (cbind(gamma)%*%rbind(gamma))*st$rhoMtx
+  sig0 <- (cbind(gamma)%*%rbind(gamma))*st$Rho
 
   d <- pracma::quad(
     functional::Curry(func_indegrand,
