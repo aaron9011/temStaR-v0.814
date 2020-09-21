@@ -5,14 +5,14 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "0",
+    "hash" : "1280089171",
     "id" : "6E683970",
-    "lastKnownWriteTime" : 1600713420,
-    "last_content_update" : 1600713420793,
+    "lastKnownWriteTime" : 1600715147,
+    "last_content_update" : 1600715147607,
     "path" : "~/GitHub/temStaR-v0.814/R/distMultiNTS.R",
     "project_path" : "R/distMultiNTS.R",
     "properties" : {
-        "cursorPosition" : "454,1",
+        "cursorPosition" : "450,2",
         "scrollLine" : "438"
     },
     "read_only" : false,

@@ -448,7 +448,6 @@ importantSamplining <- function( alpha, theta ){
     0.95, 0.99, 0.999, 0.9999, 0.99999, 0.999999
   )
   ti <- temStaR::ipsubTS(u, c(alpha, theta), maxt = 20)
-  ti = c(ti, max(ti)*2)
   subtsi <- temStaR::dsubTS(ti, c(alpha,theta))
   subTS <- list( ti = ti, subtsi = subtsi)
   return(subTS)
