@@ -1,0 +1,78 @@
+library(temStaR)
+library(functional)
+library(nloptr)
+library(pracma)
+library(spatstat)
+library(Matrix)
+library(quantmod)
+library(mvtnorm)
+
+select2fromStrPMNTS <- function(m,n,st){
+  if (m==n){
+    print("Error: m must be different from n.")
+    return( NULL )
+  }
+  if (m>st$ndim || n>st$ndim){
+    print("Error: m and n must be less than or equal to st$ndim.")
+    return( NULL )
+  }
+  if (m<1 || n<1){
+    print("Error: m and n must be positive integer.")
+    return( NULL )
+  }
+  strPMNTS <- list(ndim = 2,
+                   mu = c( st$mu[m], st$mu[n] ),
+                   sigma = c( st$sigma[m], st$sigma[n] ),
+                   alpha = st$alpha,
+                   theta = st$theta,
+                   beta =  c( st$beta[m], st$beta[n] ),
+                   Rho = matrix( data = c(1.0, st$Rho[m,n], st$Rho[n,m], 1.0), 
+                                 nrow = 2, ncol = 2)
+  )
+  return(strPMNTS)
+}
+
+objfunct2getcovar <- function(cp, vp, al, be, st){
+  p <- pmnts(c(cp, vp), st)
+  return( (p-al*be)^2 )
+}
+
+covarmstdnts <- function(be, al, stdmnts2d){
+  vp <- qmarginalmnts(al, 2, stdmnts2d)
+  cp <- qmarginalmnts(be, 1, stdmnts2d)
+  
+  res <- optimize(functional::Curry(objfunct2getcovar, 
+                                    vp = vp, 
+                                    al = al,
+                                    be = be,
+                                    st = stdmnts2d), 
+                  c(-20, 20))
+  coVaR <- -res$minimum
+  return(coVaR)
+}
+
+covarmnts <- function(be, al, m, n, st){
+  strmnts2d <- select2fromStrPMNTS(m,n,st)
+  strstdmnts2d <- list(ndim = 2,
+                       mu = c( 0, 0 ),
+                       sigma = c( 1, 1 ),
+                       alpha = strmnts2d$alpha,
+                       theta = strmnts2d$theta,
+                       beta =  strmnts2d$beta,
+                       Rho = strmnts2d$Rho
+  ) 
+  covarstd <- covarmstdnts(be, al, strstdmnts2d)
+  return(covarstd*strmnts2d$sigma[1]-strmnts2d$mu[1])
+}
+
+getSymbols("^DJI", src="yahoo", from = "2016-1-1", to = "2020-8-31")
+pr1 <- as.numeric(DJI$DJI.Adjusted)
+getSymbols("^GSPC", src="yahoo", from = "2016-1-1", to = "2020-8-31")
+pr2 <- as.numeric(GSPC$GSPC.Adjusted)
+
+returndata <- matrix(data = c(diff(log(pr1)),diff(log(pr2))),
+                     ncol = 2, nrow = (length(pr1)-1))
+res <- fitmnts( returndata = returndata, n = 2)
+
+cv <- covarmnts(be = 0.01, al = 0.05, 1, 2, res)
+print(cv)
