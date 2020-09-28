@@ -238,10 +238,11 @@ getGammaVec <- function(alpha, theta, betaVec){
 #' @title changeCovMtx2Rho
 #' @description Change coverance matrix to Rho matrix.
 #'
-changeCovMtx2Rho <- function(CovMts, alpha, theta, betaVec){
+changeCovMtx2Rho <- function(CovMtx, alpha, theta, betaVec){
+  n <- length(betaVec)
   gammaVec <- getGammaVec(alpha, theta, betaVec)
 
-  Rho <- (CovMts-(2-alpha)/(2*theta)*(betaVec%*%t(betaVec)))
+  Rho <- (CovMtx-(2-alpha)/(2*theta)*(betaVec%*%t(betaVec)))
   igam <- diag(as.numeric(1/gammaVec))
   Rho <- igam%*%Rho%*%igam
   pd <- nearPD(Rho, corr=TRUE)

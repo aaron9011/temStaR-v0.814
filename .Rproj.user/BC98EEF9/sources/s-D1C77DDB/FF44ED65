@@ -7,13 +7,13 @@
     "folds" : "",
     "hash" : "0",
     "id" : "FF44ED65",
-    "lastKnownWriteTime" : 1601264791,
-    "last_content_update" : 1601264791733,
+    "lastKnownWriteTime" : 1601265726,
+    "last_content_update" : 1601265726982,
     "path" : "~/GitHub/temStaR-v0.814/R/distMultiNTS.R",
     "project_path" : "R/distMultiNTS.R",
     "properties" : {
-        "cursorPosition" : "228,4",
-        "scrollLine" : "227"
+        "cursorPosition" : "244,16",
+        "scrollLine" : "238"
     },
     "read_only" : false,
     "read_only_alternatives" : [
