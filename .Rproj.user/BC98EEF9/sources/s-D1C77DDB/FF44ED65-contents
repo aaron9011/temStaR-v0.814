@@ -201,10 +201,8 @@ fitmnts <- function( returndata, n, alphaNtheta = NULL, stdflag = FALSE ){
   strPMNTS$theta <- alphaNtheta[2]
 
   betaVec <- matrix(nrow = n, ncol = 1)
-  gammaVec <- matrix(nrow = n, ncol = 1)
   for( k in 1:n ){
     betaVec[k,1] <- fitstdntsFixAlphaThata(stdRetData[,k], alpha = strPMNTS$alpha, theta = strPMNTS$theta)
-    gammaVec[k,1] <- sqrt(1-betaVec[k,1]^2*(2-strPMNTS$alpha)/(2*strPMNTS$theta))
   }
   strPMNTS$beta <- betaVec
 
@@ -219,16 +217,30 @@ fitmnts <- function( returndata, n, alphaNtheta = NULL, stdflag = FALSE ){
   strPMNTS$Rho <- changeCovMtx2Rho(cov(stdRetData),
                                    strPMNTS$alpha,
                                    strPMNTS$theta,
-                                   betaVec,
-                                   gammaVec)
+                                   betaVec)
   return(strPMNTS)
 }
 
 #' @export
-#' @title fitmnts
+#' @title getGammaVec
+#' @description beta to gamma in StdNTS
+#'
+getGammaVec <- function(alpha, theta, betaVec){
+  n <- length(betaVec)
+  gammaVec <- matrix(nrow = n, ncol = 1)
+  for( k in 1:n ){
+    gammaVec[k,1] <- sqrt(1-betaVec[k,1]^2*(2-alpha)/(2*theta))
+  }
+  return(gammaVec)
+}
+
+#' @export
+#' @title changeCovMtx2Rho
 #' @description Change coverance matrix to Rho matrix.
 #'
-changeCovMtx2Rho <- function(CovMts, alpha, theta, betaVec, gammaVec){
+changeCovMtx2Rho <- function(CovMts, alpha, theta, betaVec){
+  gammaVec <- getGammaVec(alpha, theta, betaVec)
+
   Rho <- (CovMts-(2-alpha)/(2*theta)*(betaVec%*%t(betaVec)))
   igam <- diag(as.numeric(1/gammaVec))
   Rho <- igam%*%Rho%*%igam

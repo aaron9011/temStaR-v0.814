@@ -2,9 +2,9 @@
 % Please edit documentation in R/distMultiNTS.R
 \name{changeCovMtx2Rho}
 \alias{changeCovMtx2Rho}
-\title{fitmnts}
+\title{changeCovMtx2Rho}
 \usage{
-changeCovMtx2Rho(CovMts, alpha, theta, betaVec, gammaVec)
+changeCovMtx2Rho(CovMts, alpha, theta, betaVec)
 }
 \description{
 Change coverance matrix to Rho matrix.
