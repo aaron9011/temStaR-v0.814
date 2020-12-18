@@ -1,19 +1,19 @@
 {
     "collab_server" : "",
     "contents" : "",
-    "created" : 1601263255244.000,
+    "created" : 1603146349726.000,
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "3400381111",
-    "id" : "FF44ED65",
-    "lastKnownWriteTime" : 1601265726,
-    "last_content_update" : 1601265726982,
+    "hash" : "2321948286",
+    "id" : "2D513F00",
+    "lastKnownWriteTime" : 1608322166,
+    "last_content_update" : 1608322166979,
     "path" : "~/GitHub/temStaR-v0.814/R/distMultiNTS.R",
     "project_path" : "R/distMultiNTS.R",
     "properties" : {
-        "cursorPosition" : "365,0",
-        "scrollLine" : "363"
+        "cursorPosition" : "406,21",
+        "scrollLine" : "423"
     },
     "read_only" : false,
     "read_only_alternatives" : [

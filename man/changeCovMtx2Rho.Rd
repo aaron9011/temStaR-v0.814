@@ -4,7 +4,7 @@
 \alias{changeCovMtx2Rho}
 \title{changeCovMtx2Rho}
 \usage{
-changeCovMtx2Rho(CovMts, alpha, theta, betaVec)
+changeCovMtx2Rho(CovMtx, alpha, theta, betaVec)
 }
 \description{
 Change coverance matrix to Rho matrix.

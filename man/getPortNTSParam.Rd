@@ -68,6 +68,7 @@ which is a weighted sum of of elements in the N-dimensional NTS random vector.
 \code{getPortNTSParam} find the parameters of \eqn{R_p}.
 }
 \examples{
+library("temStaR")
 strPMNTS <- list(ndim = 2,
                  mu = c( 9.876552e-05, 4.747343e-04 ),
                  sigma = c( 0.01620588, 0.02309643 ),

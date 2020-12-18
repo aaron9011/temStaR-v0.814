@@ -18,7 +18,7 @@ Of course, the mean and variance are always 0 and 1, respectively.
 of the standard NTS distribution with parameters \eqn{(\alpha, \theta, \beta)}.
 }
 \examples{
-
+library("temStaR")
 alpha <- 1.2
 theta <- 1
 beta <- -0.2

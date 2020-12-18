@@ -22,6 +22,7 @@ If only three parameters are given, it calculates CVaR
 of the standard NTS distribution with parameter \eqn{(\alpha, \theta, \beta)}
 }
 \examples{
+library("temStaR")
 alpha <- 1.2
 theta <- 1
 beta <- -0.2

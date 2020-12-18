@@ -50,6 +50,7 @@ library(spatstat)
 library(Matrix)
 library(quantmod)
 library(mvtnorm)
+library("temStaR")
 
 #Fix alpha and theta.
 #Estimate alpha dna theta from DJIA and use those parameter for IBM, INTL parameter fit.

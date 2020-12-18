@@ -20,6 +20,7 @@ Inverse cdf of the NTS distribution. It is the same as qnts function.
 If only three parameters are given, it calculates inverse cdf of the standard NTS distribution with parameter \eqn{(\alpha, \theta, \beta)}
 }
 \examples{
+library("temStaR")
 alpha <- 1.2
 theta <- 1
 beta <- -0.2

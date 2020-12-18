@@ -22,6 +22,8 @@ If only three parameters are given, it generates random numbers of standard NTS 
 If a time parameter value is given, it generates random numbers of increments of NTS profess for time interval t.
 }
 \examples{
+library("temStaR")
+
 alpha <- 1.2
 theta <- 1
 beta <- -0.2

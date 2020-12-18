@@ -18,7 +18,7 @@ The mean is always the same as the parameter \eqn{\mu}.
 of the NTS distribution with parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu)}.
 }
 \examples{
-
+library("temStaR")
 alpha <- 1.2
 theta <- 1
 beta <- -0.2

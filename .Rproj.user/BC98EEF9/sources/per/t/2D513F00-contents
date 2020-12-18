@@ -404,6 +404,7 @@ pmnts <- function( x, st, subTS = NULL ){
 #' \url{https://arxiv.org/pdf/2007.13972.pdf}
 #'
 #' @examples
+#' library("temStaR")
 #' library(mvtnorm)
 #' strPMNTS <- list(ndim = 2,
 #'               mu = c( 0.5, -1.5 ),

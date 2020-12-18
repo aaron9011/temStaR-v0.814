@@ -27,6 +27,7 @@ If only three parameters are given, it generate sample paths
 of the standard NTS process with parameters \eqn{(\alpha, \theta, \beta)}.
 }
 \examples{
+library("temStaR")
 #standard NTS process sample path
 alpha <- 1.2
 theta <- 1

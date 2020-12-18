@@ -42,6 +42,7 @@ where
 \eqn{X} follows \eqn{stdNTS_n(\alpha, \theta, \beta, \Sigma)}
 }
 \examples{
+library("temStaR")
 library(mvtnorm)
 strPMNTS <- list(ndim = 2,
               mu = c( 0.5, -1.5 ),

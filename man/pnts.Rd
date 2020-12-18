@@ -24,6 +24,8 @@ If a time parameter value is given, it calculates cdf of the  profess
 by the NTS distribution with parameters \eqn{(\alpha, \theta, \beta, \gamma, \mu)}.
 }
 \examples{
+library("temStaR")
+
 alpha <- 1.2
 theta <- 1
 beta <- -0.2
