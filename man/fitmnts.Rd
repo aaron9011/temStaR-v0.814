@@ -28,15 +28,15 @@ then the function fits all parameters including \eqn{\alpha} and \eqn{\theta}.}
 \value{
 Structure of parameters for the n-dimensional NTS distribution.
 
-\code{res$mu} : \eqn{\mu} mean vector (column vector) of the input data.
+\code{res$mu} : \eqn{\mu} mean vector of the input data.
 
-\code{res$sigma} : \eqn{\sigma} standard deviation vector (column vector) of the input data.
+\code{res$sigma} : \eqn{\sigma} standard deviation vector of the input data.
 
 \code{res$alpha} : \eqn{\alpha} of the std NTS distribution (X).
 
 \code{res$theta} : \eqn{\theta} of the std NTS distribution (X).
 
-\code{res$beta} : \eqn{\beta} vector (column vector) of the std NTS distribution (X).
+\code{res$beta} : \eqn{\beta} vector of the std NTS distribution (X).
 
 \code{res$Rho} : \eqn{\rho} matrix of the std NTS distribution (X),
 which is correlation matrix of epsilon.

@@ -5,15 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "0",
+    "hash" : "1623408785",
     "id" : "68364F24",
     "lastKnownWriteTime" : 1608322149,
     "last_content_update" : 1608322149094,
     "path" : "~/GitHub/temStaR-v0.814/R/distNTS.R",
     "project_path" : "R/distNTS.R",
     "properties" : {
-        "cursorPosition" : "819,21",
-        "scrollLine" : "0"
+        "cursorPosition" : "628,27",
+        "scrollLine" : "620"
     },
     "read_only" : false,
     "read_only_alternatives" : [
