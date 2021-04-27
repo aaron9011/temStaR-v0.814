@@ -53,11 +53,11 @@ fitcts <- function( rawdat, initialparam = NaN, maxeval = 100, ksdensityflag = 1
     y = Femp(x)
   } else{
     ks <- density(obs)
-    cdfks <- CDF(ks)
+    cdfks <- spatstat.core::CDF(ks)
     x <- ks$x
     y <- cdfks(x)
   }
-  
+
   ctsp <- nloptr::bobyqa(init, functional::Curry(llhfcts, x = x, cemp = y),
                  lower = c(0.0001, 0.0001, 0.0001),
                  upper = c(1.999,  1000, 1000),
@@ -198,11 +198,11 @@ fitstdcts <- function( obs, initialparam = NaN, maxeval = 100, ksdensityflag = 1
     y = Femp(x)
   } else{
     ks <- density(obs)
-    cdfks <- CDF(ks)
+    cdfks <- spatstat.core::CDF(ks)
     x <- ks$x
     y <- cdfks(x)
   }
-  
+
   ctsp <- nloptr::bobyqa(init[1:3], functional::Curry(llhfcts, x = x, cemp = y),
                  lower = c(0.0001, 0.0001, 0.0001),
                  upper = c(1.999,  1000, 1000),

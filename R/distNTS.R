@@ -285,7 +285,7 @@ fitnts <- function( rawdat, initialparam = NaN, maxeval = 100, ksdensityflag = 1
 
   if(ksdensityflag == 1){
     ks <- density(obs)
-    cdfks <- spatstat::CDF(ks)
+    cdfks <- spatstat.core::CDF(ks)
     x <- ks$x
     y <- cdfks(x)
   } else{
@@ -369,7 +369,7 @@ fitstdnts <- function( rawdat, initialparam = NaN, maxeval = 100, ksdensityflag 
     y = Femp(x)
   } else{
     ks <- density(rawdat)
-    cdfks <- spatstat::CDF(ks)
+    cdfks <- spatstat.core::CDF(ks)
     x <- ks$x
     y <- cdfks(x)
   }
