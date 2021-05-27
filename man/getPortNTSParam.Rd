@@ -38,7 +38,7 @@ where
 
 If \code{stdform} is \code{TRUE}, then the return parameter has the following representation
 
-\eqn{R_p = <w, r>} follows \eqn{stdNTS_1(\alpha, \theta, \beta, \gamma, \mu)}}
+\eqn{R_p = <w, r>} follows \eqn{NTS_1(\alpha, \theta, \beta, \gamma, \mu, 1)}}
 }
 \value{
 The weighted sum follows 1-dimensional NTS.
