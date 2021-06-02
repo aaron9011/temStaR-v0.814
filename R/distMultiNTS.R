@@ -367,7 +367,8 @@ llhfntsFixAlphaTheta <- function(betaparam, alpha, theta, x, cemp, dispF = 0){
 #' dmnts(c(0,0,0), st = strPMNTS)
 #'
 pmnts <- function( x, st, subTS = NULL ){
-  xadj <- (x-st$beta)/st$sigma
+  #xadj <- (x-st$beta)/st$sigma
+  xadj <- (x-st$mu)/st$sigma
   return(pMultiStdNTS(xadj, st, subTS))
 }
 
@@ -436,7 +437,8 @@ pmnts <- function( x, st, subTS = NULL ){
 #' dmnts(c(0,0,0), st = strPMNTS)
 #'
 dmnts <- function( x, st, subTS = NULL ){
-  xadj <- (x-st$beta)/st$sigma
+  #xadj <- (x-st$beta)/st$sigma
+  xadj <- (x-st$mu)/st$sigma
   return(dMultiStdNTS(xadj, st, subTS)/prod(st$sigma))
 }
 
@@ -546,7 +548,7 @@ pMultiNorm_Subord <- function( tVec, x, alpha, theta, beta, rhoMtx ){
     }
     else{
       adjx <- (x-beta*(t-1))/(gamma*sqrt(t))
-      re[i] <- pmvnorm(lower = c(-Inf, -Inf),
+      re[i] <- pmvnorm(lower = rep(-Inf, length(x)), #c(-Inf, -Inf)
                        upper = adjx, mean = rep(0, length(x)), sigma = rhoMtx )
     }
   }
