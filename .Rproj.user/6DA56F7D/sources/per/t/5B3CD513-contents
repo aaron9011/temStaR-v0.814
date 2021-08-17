@@ -1,0 +1,79 @@
+library(quadprog)
+library(quantmod)
+library(functional)
+library(nloptr)
+library(pracma)
+library(NlcOptim)
+source("readStockData.R")
+
+portRisk <- function(w, covMtx){
+  w <- matrix(w, nrow = 1, ncol = length(w))
+  return(w%*%covMtx%*%t(w))
+}
+
+findOptimalPortfolio <- function(meanvector, covMtx, benchmarkReturn){
+  numofelements <- length(meanvector)
+  w0 <- rep(1/numofelements, numofelements)
+  optport <- fmincon(x0 = w0, 
+          fn = functional::Curry(portRisk, 
+                                 covMtx = covMtx),
+          A = -matrix(meanvector, nrow = 1, ncol = numofelements), 
+          b = -benchmarkReturn,
+          Aeq = matrix(data = 1, nrow = 1, ncol = numofelements), 
+          beq = 1,
+          lb = rep(0, numofelements), 
+          ub = rep(1, numofelements))
+  
+  sqrt(sum((optport$par%*%covMtx)*(optport$par)))
+  
+  ExpectedReturn <- sum(optport$par*meanvector)
+  returnvalue <- list(weight=optport$par, 
+                      reward = ExpectedReturn, 
+                      risk = optport$value)
+  return( returnvalue )
+}
+  
+begindate <- as.Date("2010-1-1")
+enddate <- as.Date("2020-06-30")
+intervalDateNumber <- 22
+
+yTickers <- c("GOOG","MMM","MSFT","IBM" )
+numofelements <- length(yTickers)
+
+ret <- readdata(yTickers, numofelements, begindate, enddate, intervalDateNumber )
+er <- colMeans(ret)
+covMtx <- cov(ret)
+
+mu0 <- seq(from = min(er), to = max(er), by = 0.00001)
+weight <- matrix(nrow = numofelements, ncol = length(mu0))
+sigma <- matrix(nrow = 1,ncol = length(mu0)) 
+for (i in 1:length(mu0)){
+  retv <- findOptimalPortfolio(
+                    meanvector = er, 
+                    covMtx = covMtx, 
+                    benchmarkReturn = mu0[i])
+  
+  weight[,i] <- matrix(retv$weight, numofelements,1)
+  sigma[i] <- sqrt(retv$risk)
+}
+
+rf <- 0.0001;
+m <- er%*%weight;
+sharperatio <- (m-rf)/(sigma);
+
+maxIndex<-which.max(sharperatio)
+maxSharperatio <- max(sharperatio)
+tangencyportfolio <- weight[,maxIndex]
+
+cat("sharpe ratio:", maxSharperatio, "\n")
+cat('tangency portfolio weight vector = ', tangencyportfolio);
+
+par(mfrow=c(1,2))
+barcol = rainbow(numofelements)
+barplot(weight, col=barcol, border = NA, beside = FALSE)
+legend("left", inset=.02, 
+       legend = yTickers,fill=barcol, cex=0.8)
+
+plot(sigma, mu0, type = 'l')
+points(sigma, maxSharperatio*sigma+rf, type = 'l')
+points(sigma[maxIndex], m[maxIndex])
