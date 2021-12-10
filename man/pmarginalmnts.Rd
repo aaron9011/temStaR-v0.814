@@ -7,6 +7,10 @@
 pmarginalmnts(x, n, st)
 }
 \arguments{
+\item{x}{the \eqn{x} such that \eqn{F(x) = P(X_n<x)}}
+
+\item{n}{the \eqn{n}-th element to be calculated.}
+
 \item{st}{Structure of parameters for the n-dimensional NTS distribution.}
 }
 \description{

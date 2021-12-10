@@ -219,15 +219,15 @@ rmnts_subord <- function( strPMNTS, numofsample, rW = NaN, rTau = NaN )
 #'
 #'
 #' #Fix alpha and theta.
-#' #Estimate alpha dna theta from DJIA and use those parameter for IBM, INTL parameter fit.
+#' #Estimate alpha dna theta from DJIA and use those parameter for IBM, INTC parameter fit.
 #' getSymbols("^DJI", src="yahoo", from = "2020-8-25", to = "2020-08-31")
 #' prDJ <- as.numeric(DJI$DJI.Adjusted)
 #' ret <- diff(log(prDJ))
 #' ntsparam <-  fitnts(ret)
 #' getSymbols("IBM", src="yahoo", from = "2016-1-1", to = "2020-08-31")
 #' pr1 <- as.numeric(IBM$IBM.Adjusted)
-#' getSymbols("INTL", src="yahoo", from = "2016-1-1", to = "2020-08-31")
-#' pr2 <- as.numeric(INTL$INTL.Adjusted)
+#' getSymbols("INTC", src="yahoo", from = "2016-1-1", to = "2020-08-31")
+#' pr2 <- as.numeric(INTC$INTC.Adjusted)
 #'
 #' returndata <- matrix(data = c(diff(log(pr1)),diff(log(pr2))),
 #'                      ncol = 2, nrow = (length(pr1)-1))
@@ -666,8 +666,8 @@ pMultiStdNTS <- function( x, st, subTS = NULL ){
 #' the marginal cdf of the \eqn{n}-th element
 #' of the multivariate NTS distributed random variable.
 #'
-#' @patam x the \eqn{x} such that \eqn{F(x) = P(X_n<x)}
-#' @patam n the \eqn{n}-th element to be calculated.
+#' @param x the \eqn{x} such that \eqn{F(x) = P(X_n<x)}
+#' @param n the \eqn{n}-th element to be calculated.
 #' @param st Structure of parameters for the n-dimensional NTS distribution.
 #'
 #'
@@ -691,8 +691,8 @@ pmarginalmnts <- function(x, n, st){
 #' the marginal density of the \eqn{n}-th element
 #' of the multivariate NTS distributed random variable.
 #'
-#' @patam x the \eqn{x} such that \eqn{f(x) = \frac{d}{dx}P(X_n<x)}
-#' @patam n the \eqn{n}-th element to be calculated.
+#' @param x the \eqn{x} such that \eqn{f(x) = \frac{d}{dx}P(X_n<x)}
+#' @param n the \eqn{n}-th element to be calculated.
 #' @param st Structure of parameters for the n-dimensional NTS distribution.
 #'
 dmarginalmnts <- function(x, n, st){
@@ -715,8 +715,8 @@ dmarginalmnts <- function(x, n, st){
 #' the quantile value of the \eqn{n}-th element
 #' of the multivariate NTS distributed random variable.
 #'
-#' @patam u vector of probabilities.
-#' @patam n the \eqn{n}-th element to be calculated.
+#' @param u vector of probabilities.
+#' @param n the \eqn{n}-th element to be calculated.
 #' @param st Structure of parameters for the n-dimensional NTS distribution.
 #'
 qmarginalmnts <- function(u, n, st){
@@ -739,7 +739,7 @@ qmarginalmnts <- function(u, n, st){
 #' of the multivariate NTS distributed random variable.
 #'
 #' @param eta the significant level for CVaR. Real value between 0 and 1.
-#' @patam n the \eqn{n}-th element to be calculated.
+#' @param n the \eqn{n}-th element to be calculated.
 #' @param st Structure of parameters for the n-dimensional NTS distribution.
 #'
 cvarmarginalmnts <- function(eta, n, st){

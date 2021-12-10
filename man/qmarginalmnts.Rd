@@ -7,6 +7,10 @@
 qmarginalmnts(u, n, st)
 }
 \arguments{
+\item{u}{vector of probabilities.}
+
+\item{n}{the \eqn{n}-th element to be calculated.}
+
 \item{st}{Structure of parameters for the n-dimensional NTS distribution.}
 }
 \description{

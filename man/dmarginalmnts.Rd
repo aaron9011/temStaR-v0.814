@@ -7,6 +7,10 @@
 dmarginalmnts(x, n, st)
 }
 \arguments{
+\item{x}{the \eqn{x} such that \eqn{f(x) = \frac{d}{dx}P(X_n<x)}}
+
+\item{n}{the \eqn{n}-th element to be calculated.}
+
 \item{st}{Structure of parameters for the n-dimensional NTS distribution.}
 }
 \description{

@@ -1,6 +1,6 @@
 #' @export
 #' @title rmnts
-#' @description \code{rmnts} generates random vector following the n dimensional NTS distribution.
+#' @description \code{rmnts} generates random vector following the n dimensional NTS distribution using Cholesky decomposition.
 #'
 #' \eqn{r = \mu + diag(\sigma) X},
 #'
@@ -43,7 +43,80 @@
 #' gensim <- rmnts( strPMNTS, 100 )
 #' plot(gensim)
 #'
-rmnts <- function( strPMNTS, numofsample, rW = NaN, rTau = NaN )
+rmnts <- function(strMnts, numofsample){
+  N <- strMnts$ndim
+  al <- strMnts$alpha
+  th <- strMnts$theta
+  beta <- strMnts$beta
+  gamma <- sqrt(1-beta^2*(2-strMnts$alpha)/(2*strMnts$theta))
+  L <- t(chol(strMnts$Rho))
+  X <- matrix(nrow = numofsample, ncol = N)
+  X[,1] = rnts(n, c(al, th, beta[1]))
+  for (n in 2:N){
+    betatilde <- beta[n]-gamma[n]*sum(beta[1:(n-1)]*L[n,1:(n-1)]/gamma[1:(n-1)])
+    gammatilde <- gamma[n]*L[n,n]
+    Xtilde <- matrix(data=rnts(numofsample, c(al, th, betatilde, gammatilde, 0)),
+                     nrow = numofsample, ncol = 1)
+
+    b <- matrix(data=gamma[n]*L[n,1:(n-1)]/gamma[1:(n-1)],
+                nrow = n-1, ncol = 1)
+    Xb <- X[,1:(n-1)]%*%b
+    X[,n] <- Xtilde+Xb
+  }
+  Y <- matrix(nrow = numofsample, ncol = N)
+
+  mu <- t(matrix(strMnts$mu, nrow = N, ncol = numofsample))
+  sigma <- t(matrix(strMnts$sigma, nrow = N, ncol = numofsample))
+  Y <- mu+sigma*X
+  return(Y)
+}
+
+#' @export
+#' @title rmnts_subord
+#' @description \code{rmnts_subord} generates random vector following the n dimensional NTS distribution using subordination.
+#'
+#' \eqn{r = \mu + diag(\sigma) X},
+#'
+#' where
+#'
+#' \eqn{X} follows \eqn{stdNTS_n(\alpha, \theta, \beta, \Sigma)}
+#'
+#' @param strPMNTS Structure of parameters for the n-dimensional NTS distribution.
+#'
+#' \code{strPMNTS$ndim} : dimension
+#'
+#' \code{strPMNTS$mu} : \eqn{\mu} mean vector (column vector) of the input data.
+#'
+#' \code{strPMNTS$sigma} : \eqn{\sigma} standard deviation vector (column vector) of the input data.
+#'
+#' \code{strPMNTS$alpha} : \eqn{\alpha} of the std NTS distribution (X).
+#'
+#' \code{strPMNTS$theta} : \eqn{\theta} of the std NTS distribution (X).
+#'
+#' \code{strPMNTS$beta} : \eqn{\beta} vector (column vector) of the std NTS distribution (X).
+#'
+#' \code{strPMNTS$Rho} : \eqn{\rho} matrix of the std NTS distribution (X).
+#'
+#' @param numofsample number of samples.
+#'
+#' @return Simulated NTS random vectors
+#' @references
+#' Kim, Y. S. (2020) Portfolio Optimization on the Dispersion Risk and the Asymmetric Tail Risk
+#' \url{https://arxiv.org/pdf/2007.13972.pdf}
+#'
+#' @examples
+#' strPMNTS <- list(ndim = 2,
+#'                  mu = c( 0.00011, 0.00048 ),
+#'                  sigma = c( 0.0162, 0.0231 ),
+#'                  alpha = 1.23,
+#'                  theta = 3.607,
+#'                  beta =  c( -0.1209,  0.0905 ),
+#'                  Rho = matrix( data = c(1.0, 0.55, 0.55, 1.0), nrow = 2, ncol = 2)
+#' )
+#' gensim <- rmnts_subord( strPMNTS, 100 )
+#' plot(gensim)
+#'
+rmnts_subord <- function( strPMNTS, numofsample, rW = NaN, rTau = NaN )
   # r = \mu + \sigma X
   # X = \beta-1+\sqrt(\tau) \gamma^T \epsilon
   # \mu = [\mu_1, \mu_2, \cdots, \mu_N]^T
@@ -146,15 +219,15 @@ rmnts <- function( strPMNTS, numofsample, rW = NaN, rTau = NaN )
 #'
 #'
 #' #Fix alpha and theta.
-#' #Estimate alpha dna theta from DJIA and use those parameter for IBM, INTL parameter fit.
+#' #Estimate alpha dna theta from DJIA and use those parameter for IBM, INTC parameter fit.
 #' getSymbols("^DJI", src="yahoo", from = "2020-8-25", to = "2020-08-31")
 #' prDJ <- as.numeric(DJI$DJI.Adjusted)
 #' ret <- diff(log(prDJ))
 #' ntsparam <-  fitnts(ret)
 #' getSymbols("IBM", src="yahoo", from = "2016-1-1", to = "2020-08-31")
 #' pr1 <- as.numeric(IBM$IBM.Adjusted)
-#' getSymbols("INTL", src="yahoo", from = "2016-1-1", to = "2020-08-31")
-#' pr2 <- as.numeric(INTL$INTL.Adjusted)
+#' getSymbols("INTC", src="yahoo", from = "2016-1-1", to = "2020-08-31")
+#' pr2 <- as.numeric(INTC$INTC.Adjusted)
 #'
 #' returndata <- matrix(data = c(diff(log(pr1)),diff(log(pr2))),
 #'                      ncol = 2, nrow = (length(pr1)-1))
@@ -593,8 +666,8 @@ pMultiStdNTS <- function( x, st, subTS = NULL ){
 #' the marginal cdf of the \eqn{n}-th element
 #' of the multivariate NTS distributed random variable.
 #'
-#' @patam x the \eqn{x} such that \eqn{F(x) = P(X_n<x)}
-#' @patam n the \eqn{n}-th element to be calculated.
+#' @param x the \eqn{x} such that \eqn{F(x) = P(X_n<x)}
+#' @param n the \eqn{n}-th element to be calculated.
 #' @param st Structure of parameters for the n-dimensional NTS distribution.
 #'
 #'
@@ -618,8 +691,8 @@ pmarginalmnts <- function(x, n, st){
 #' the marginal density of the \eqn{n}-th element
 #' of the multivariate NTS distributed random variable.
 #'
-#' @patam x the \eqn{x} such that \eqn{f(x) = \frac{d}{dx}P(X_n<x)}
-#' @patam n the \eqn{n}-th element to be calculated.
+#' @param x the \eqn{x} such that \eqn{f(x) = \frac{d}{dx}P(X_n<x)}
+#' @param n the \eqn{n}-th element to be calculated.
 #' @param st Structure of parameters for the n-dimensional NTS distribution.
 #'
 dmarginalmnts <- function(x, n, st){
@@ -642,8 +715,8 @@ dmarginalmnts <- function(x, n, st){
 #' the quantile value of the \eqn{n}-th element
 #' of the multivariate NTS distributed random variable.
 #'
-#' @patam u vector of probabilities.
-#' @patam n the \eqn{n}-th element to be calculated.
+#' @param u vector of probabilities.
+#' @param n the \eqn{n}-th element to be calculated.
 #' @param st Structure of parameters for the n-dimensional NTS distribution.
 #'
 qmarginalmnts <- function(u, n, st){
@@ -666,7 +739,7 @@ qmarginalmnts <- function(u, n, st){
 #' of the multivariate NTS distributed random variable.
 #'
 #' @param eta the significant level for CVaR. Real value between 0 and 1.
-#' @patam n the \eqn{n}-th element to be calculated.
+#' @param n the \eqn{n}-th element to be calculated.
 #' @param st Structure of parameters for the n-dimensional NTS distribution.
 #'
 cvarmarginalmnts <- function(eta, n, st){

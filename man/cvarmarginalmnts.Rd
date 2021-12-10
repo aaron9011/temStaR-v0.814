@@ -9,6 +9,8 @@ cvarmarginalmnts(eta, n, st)
 \arguments{
 \item{eta}{the significant level for CVaR. Real value between 0 and 1.}
 
+\item{n}{the \eqn{n}-th element to be calculated.}
+
 \item{st}{Structure of parameters for the n-dimensional NTS distribution.}
 }
 \description{
