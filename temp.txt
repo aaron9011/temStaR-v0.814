@@ -1,24 +1,8 @@
 person(given = "Aaron Y.S.",
        family = "Kim",
        role = c("aut", "cre", "cph"),
-       email = "aaron.kim@stonybrook.edu",
-       comment = c(URL = "https://www.stonybrook.edu/commcms/business/about/_faculty/profile/youngskim")
-),
-person(given = "Stoyan",
-       family = "Stoyanov",
-       role = c("aut", "cre", "cph"),
-       email = "stoyan.stoyanov@gmail.com",
-       comment = " "
-),
-person(given = "Stoyan",
-       family = "Stoyanov",
-       role = c("aut", "cre", "cph"),
-       email = "stoyan.stoyanov@gmail.com"
-),
-person(given = "Minseob",
-       family = "Kim",
-       role = c("ctb"),
-       email = "minseobik@gmail.com"
+       email = "aaron.kim@girininst.com",
+       comment = c(URL = "https://www.girininst.com/about.html")
 )
 
  c(
@@ -26,13 +10,7 @@ person(given = "Minseob",
       given = "Aaron Y.S.",
       family = "Kim",
       role = c("aut", "cre", "cph"),
-      email = "aaron.kim@stonybrook.edu",
-      comment = c(URL = "https://www.stonybrook.edu/commcms/business/about/_faculty/profile/youngskim")
-      ),
-      person(
-      "Stoyan",
-      "Stoyanov",
-      role = c("aut", "cre", "cph"),
-      email = "stoyan.stoyanov@gmail.com"
+      email = "aaron.kim@girininst.com",
+      comment = c(URL = "https://www.girininst.com/about.html")
       )
-      )
+)
